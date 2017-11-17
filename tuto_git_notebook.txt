@@ -1,0 +1,7 @@
+Dans ce repertoire (donc le dossier ou vous avez trouvé ce tuto) écrivez ces quelques lignes:
+	
+	git init . 
+	pip install nbstripout
+	nbstripout --install
+
+S'il n'y a pas eu d'erreur alors normalement c'est TOUT BON! 
