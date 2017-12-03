@@ -4,19 +4,10 @@ import numpy as np
 import scipy.sparse as sp # In order to use sparse 
 from helpers import *
 
-
-def init_MF(train, num_features): # Based on ex10
-    """init the parameter for matrix factorization."""
-    num_users, num_movies = train.shape # To get the dimensions
-    
-    #********* Initialization of the features Matrix ***********
-    users_feat = np.random.rand(num_users, num_features) # rows = users, columns = features
-    movies_feat = np.random.rand(num_movies, num_features) # rows = movies, columns = features
-    
-    return users_feat, movies_feat
-
 def rmse_movie_mean(train, test): # Idea on ex10
-    ''' Compute the mean for each movie among the movies 
+    
+    ''' 
+        Compute the mean for each movie among the movies 
         For the "train set":
             take each movie (one-by-one), find the non-zero ratings, compute the mean
         For the "test set":
@@ -40,23 +31,38 @@ def rmse_movie_mean(train, test): # Idea on ex10
         mse += calculate_mse(test_movie_nnz, mean_train) # to compute the mse for the whole test
     return np.sqrt(mse/test.nnz)
 
+def init_MF(train, num_features): # Based on ex10
+    """init the parameter for matrix factorization."""
+    num_users, num_movies = train.shape # To get the dimensions
+    
+    #********* Initialization of the features Matrix ***********
+    users_feat = np.random.rand(num_users, num_features) # rows = users, columns = features
+    movies_feat = np.random.rand(num_movies, num_features) # rows = movies, columns = features
+    # OK
+    
+    return users_feat, movies_feat
 
 def compute_error(data, user_features, movie_features, nz): # From ex10
     """compute the loss (MSE) of the prediction of nonzero elements."""
+    # User_features: 
+
     mse = 0
     for row, col in nz:
-        movie_info = movie_features[row, :]
-        user_info = user_features[col, :]
+
+        movie_info = movie_features[col, :]
+        user_info = user_features[row, :]
         mse += (data[row, col] - user_info.T.dot(movie_info)) ** 2
     return np.sqrt(1.0 * mse / len(nz))
 
-def matrix_factorization_SGD(train, test): # From ex10
+def matrix_factorization_SGD(train, test, default,gamma, num_features, lambda_user, lambda_movie): # From ex10
     """matrix factorization by SGD."""
     # define parameters
-    gamma = 0.01
-    num_features = 20   # K in the lecture notes
-    lambda_user = 0.1
-    lambda_movie = 0.7
+    if default:
+        gamma = 0.01
+        num_features = 20   # K in the lecture notes
+        lambda_user = 0.1
+        lambda_movie = 0.7
+
     num_epochs = 20     # number of full passes through the train set
     errors = [0]
 
@@ -82,13 +88,13 @@ def matrix_factorization_SGD(train, test): # From ex10
 
         for d, n in nz_train:
             # update W_d (movie_features[d,:]) and Z_n (user_features[n,:])
-            movie_info = movie_features[d,:]
-            user_info = user_features[n, :]
-            err = train[n, d] - user_info.T.dot(movie_info)
+            movie_info = movie_features[n,:]
+            user_info = user_features[d, :]
+            err = train[d, n] - user_info.T.dot(movie_info)
 
             # calculate the gradient and update
-            movie_features[d, :] += gamma * (err * user_info - lambda_movie * movie_info)
-            user_features[n,:] += gamma * (err * movie_info - lambda_user * user_info)
+            movie_features[n, :] += gamma * (err * user_info - lambda_movie * movie_info)
+            user_features[d,:] += gamma * (err * movie_info - lambda_user * user_info)
 
         rmse = compute_error(train, user_features, movie_features, nz_train)
         print("iter: {}, RMSE on training set: {}.".format(it, rmse))
