@@ -40,14 +40,13 @@ def rmse_movie_mean(train, test): # Idea on ex10
         mse += calculate_mse(test_movie_nnz, mean_train) # to compute the mse for the whole test
     return np.sqrt(mse/test.nnz)
 
-########## NEED TO CHECK THE ORDER OF THE ROW AND COL ###############
 
 def compute_error(data, user_features, movie_features, nz): # From ex10
     """compute the loss (MSE) of the prediction of nonzero elements."""
     mse = 0
     for row, col in nz:
-        movie_info = movie_features[:, row]
-        user_info = user_features[:, col]
+        movie_info = movie_features[row, :]
+        user_info = user_features[col, :]
         mse += (data[row, col] - user_info.T.dot(movie_info)) ** 2
     return np.sqrt(1.0 * mse / len(nz))
 
@@ -57,7 +56,7 @@ def matrix_factorization_SGD(train, test): # From ex10
     gamma = 0.01
     num_features = 20   # K in the lecture notes
     lambda_user = 0.1
-    lambda_item = 0.7
+    lambda_movie = 0.7
     num_epochs = 20     # number of full passes through the train set
     errors = [0]
 
@@ -68,10 +67,10 @@ def matrix_factorization_SGD(train, test): # From ex10
     user_features, movie_features = init_MF(train, num_features)
 
     # find the non-zero ratings indices
-    nz_row, nz_col = train.nonzero()
-    nz_train = list(zip(nz_row, nz_col))
-    nz_row, nz_col = test.nonzero()
-    nz_test = list(zip(nz_row, nz_col))
+    nz_user_ind, nz_movie_ind = train.nonzero() # To get the indices of the non-zero ratings (train)
+    nz_train = list(zip(nz_user_ind, nz_movie_ind)) # To create a list with the indices of non-zero (e.g (user,movie) )
+    nz_user_indTest, nz_movie_indTest = test.nonzero() # To get the indices of the non-zero ratings (test)
+    nz_test = list(zip(nz_user_indTest, nz_movie_indTest)) # To create a list with the indices of non-zero (e.g (user,movie) )
 
     print("learn the matrix factorization using SGD...")
     for it in range(num_epochs):
@@ -82,13 +81,13 @@ def matrix_factorization_SGD(train, test): # From ex10
         gamma /= 1.2
 
         for d, n in nz_train:
-            # update W_d (movie_features[:, d]) and Z_n (user_features[:, n])
+            # update W_d (movie_features[d,:]) and Z_n (user_features[n,:])
             movie_info = movie_features[d,:]
             user_info = user_features[n, :]
             err = train[n, d] - user_info.T.dot(movie_info)
 
             # calculate the gradient and update
-            movie_features[d, :] += gamma * (err * user_info - lambda_item * movie_info)
+            movie_features[d, :] += gamma * (err * user_info - lambda_movie * movie_info)
             user_features[n,:] += gamma * (err * movie_info - lambda_user * user_info)
 
         rmse = compute_error(train, user_features, movie_features, nz_train)
