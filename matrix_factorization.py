@@ -111,11 +111,11 @@ def matrix_factorization_SGD(train, test, default,gamma, num_features, lambda_us
 #             train: data sparse matrix with a pourcentage of valid ratings
 #             movies_features: numpy matrix that contains the features for the movies (num of feat is defined = K)
 #             lambda_user: it is the regularization term for the user
-#             nnz_movies_per_user:
-#             nz_user_movieIndices:
+#             nnz_movies_per_user: indices of the movies that contains non-zero entries (dimension: n_movies x 1)
+#             nz_user_movieIndices: the indices of the movies that contains non-zero ratings for the user
 #     '''
 #     num_user = nnz_movies_per_user.shape[0]
-#     num_feature = item_features.shape[0]
+#     num_feature = movies_features.shape[0]
 #     lambda_I = lambda_user * sp.eye(num_feature)
 #     updated_user_features = np.zeros((num_feature, num_user))
 #
