@@ -105,7 +105,33 @@ def matrix_factorization_SGD(train, test, default,gamma, num_features, lambda_us
     rmse = compute_error(test, user_features, movie_features, nz_test)
     print("RMSE on test data: {}.".format(rmse))
 
-
+# def update_user_features(train, movies_features, lambda_user, nnz_movies_per_user, nz_user_movieIndices): # Based on ex10
+#     ''' Do the update of the user_features based on the gradient of the "sum of squared error" with a regularization term
+#         Inputs:
+#             train: data sparse matrix with a pourcentage of valid ratings
+#             movies_features: numpy matrix that contains the features for the movies (num of feat is defined = K)
+#             lambda_user: it is the regularization term for the user
+#             nnz_movies_per_user:
+#             nz_user_movieIndices:
+#     '''
+#     num_user = nnz_movies_per_user.shape[0]
+#     num_feature = item_features.shape[0]
+#     lambda_I = lambda_user * sp.eye(num_feature)
+#     updated_user_features = np.zeros((num_feature, num_user))
+#
+#     for user, items in nz_user_itemindices:
+#         # extract the columns corresponding to the prediction for given item
+#         M = item_features[:, items]
+#
+#         # update column row of user features
+#         V = M @ train[items, user]
+#         A = M @ M.T + nnz_items_per_user[user] * lambda_I
+#         X = np.linalg.solve(A, V)
+#         updated_user_features[:, user] = np.copy(X.T)
+#     return updated_user_features
+#
+#
+# def als
     
     
 
