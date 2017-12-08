@@ -3,6 +3,7 @@
 import numpy as np
 from itertools import groupby
 import scipy.sparse as sp # In order to use sparse 
+import csv
 
 
 def load_data_old(dataSetCSVfile): # This come from from the first project (modified)
@@ -18,19 +19,21 @@ def load_data_old(dataSetCSVfile): # This come from from the first project (modi
         path_dataset, delimiter=",", skip_header=1, usecols=1)
     return rowCol_samples, data
 
-def create_csv_submission(ids, y_pred, name): # This come from the first project
+def create_csv_submission(row_users, col_movies, estim, name): # This come from the first project
     """
     Creates an output file in csv format for submission to kaggle
-    Arguments: ids (event ids associated with each prediction)
-               y_pred (predicted class labels)
+    Arguments: row_users (the indices of the users)
+               col_movies (the indices of the movies)
+               estim (the estimated ratings)
                name (string name of .csv output file to be created)
     """
-    with open(name, 'w') as csvfile:
-        fieldnames = ['Id', 'Prediction']
-        writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames)
-        writer.writeheader()
-        for r1, r2 in zip(ids, y_pred):
-            writer.writerow({'Id':int(r1),'Prediction':int(r2)})
+    with open(name, 'w',  newline='') as csvfile:
+        fieldnames = ['Id', 'Prediction'] # Define the fieldnames
+        writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames) # creation of the writer with a dictionary
+        writer.writeheader() # To write the header row
+        for r,c,e in zip(row_users, col_movies, estim): # Loop over the indices and ratings
+            writer.writerow({'Id':'r{}_c{}'.format(r, c),'Prediction':int(e)}) # In order to have everything in each row in the right format
+
 
 
 
