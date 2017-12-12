@@ -32,7 +32,7 @@ def create_csv_submission(row_users, col_movies, estim, name): # This come from 
         writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames) # creation of the writer with a dictionary
         writer.writeheader() # To write the header row
         for r,c,e in zip(row_users, col_movies, estim): # Loop over the indices and ratings
-            writer.writerow({'Id':'r{}_c{}'.format(r, c),'Prediction':int(e)}) # In order to have everything in each row in the right format
+            writer.writerow({'Id':'r{}_c{}'.format(r, c),'Prediction':int(round(e))}) # In order to have everything in each row in the right format
 
 
 
