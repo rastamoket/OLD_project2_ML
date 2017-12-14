@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 ''' Some functions to do some pre-processing '''
 import scipy.sparse as sp # In order to use sparse Matrix
+import pandas as pd
 import numpy as np 
 
 def valid_ratings(ratings, num_items_per_user, num_users_per_item, min_num_ratings): # This is based on the ex10
@@ -30,4 +31,14 @@ def split_data(ratings, prob_test=0.1): # This is based on the ex10
             
     return train, test
     
+def formating_data_surprise(ratings):
+    movies, users, ratings_nnz = sp.find(ratings.T)
+    IDs_dict = {'movies ID': movies+1,
+                'ratings': ratings_nnz,
+                'users ID': users+1
+               }
+
+    ratings_representation = pd.DataFrame.from_dict(IDs_dict) # Creation of the dataframe from the dictionary
+
+    return ratings_representation[ratings_representation.ratings != 0]
     
