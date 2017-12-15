@@ -3,6 +3,8 @@
 import scipy.sparse as sp # In order to use sparse Matrix
 import pandas as pd
 import numpy as np 
+from surprise import dataset
+from surprise import Dataset
 
 def valid_ratings(ratings, num_items_per_user, num_users_per_item, min_num_ratings): # This is based on the ex10
     ''' To select only the users and items that give "enough" ratings'''
@@ -31,7 +33,7 @@ def split_data(ratings, prob_test=0.1): # This is based on the ex10
             
     return train, test
     
-def formating_data_surprise(ratings):
+def formating_data_surprise(ratings, dataF_return = False):
     movies, users, ratings_nnz = sp.find(ratings.T)
     IDs_dict = {'movies ID': movies+1,
                 'ratings': ratings_nnz,
@@ -40,5 +42,10 @@ def formating_data_surprise(ratings):
 
     ratings_representation = pd.DataFrame.from_dict(IDs_dict) # Creation of the dataframe from the dictionary
 
-    return ratings_representation[ratings_representation.ratings != 0]
+    dataF = ratings_representation[ratings_representation.ratings != 0]
+    reader = dataset.Reader(rating_scale=(1, 5))
+    if dataF_return:
+        return dataF, Dataset.load_from_df(dataF[['users ID', 'movies ID', 'ratings']], reader)
+    else:
+        return Dataset.load_from_df(dataF[['users ID', 'movies ID', 'ratings']], reader)
     
