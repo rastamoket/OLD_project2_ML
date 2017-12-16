@@ -17,12 +17,23 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis # Quadra
 def prediction_error(lab_real, lab_pred):
     ''' To compute the error of prediction
         This is done by comparison of the prediction and the real labels
+        Arguments:
+            lab_real: real labels
+            lab_pred: prediction of the labels
+        Returns:
+            the prediction error
     '''
     return np.where(lab_real != lab_pred)[0].shape[0]/lab_real.shape[0]
 
 ############## Methods for Naive Bayes #################
 def training_gaussNB(x_tr, y_tr, hyperparam = None):
-
+    ''' Train the classifier Naive Bayes (gaussian) 
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            hyperparam: if there are some
+        Returns:
+            clf: the classifier trained
+    '''
     if hyperparam is not None:
         clf = GaussianNB() # If any hyperparameters --> add here
     else:
@@ -30,6 +41,16 @@ def training_gaussNB(x_tr, y_tr, hyperparam = None):
     return clf.fit(x_tr, y_tr)
 
 def naive_bayes(x_tr, x_te, y_tr, y_te, hyperparam = None):
+    ''' Method to train and test naive bayes
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            x_te, y_te: data and label for the test
+            hyperparam: if there are some
+        Returns:
+            clf: classifier that is trained
+            train_error: error of prediction on the training set
+            test_error: error of prediction on the test set
+    '''
     if hyperparam is not None:
         clf = training_gaussNB(x_tr, y_tr, hyperparam)
     else:
@@ -41,12 +62,18 @@ def naive_bayes(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return train_error, test_error
+    return clf, train_error, test_error
 
 
 ############## Methods for K-nearest Neighbors #################
 def training_kNeigh(x_tr, y_tr, hyperparam = None):
-    ''' Train the classifier for K nearest neighbor '''
+    ''' Train the classifier for K nearest neighbor 
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            hyperparam: if there are some
+        Returns:
+            neigh: the classifier trained
+    '''
     if hyperparam is not None:
         neigh = KNeighborsClassifier(n_neighbors=hyperparam)
     else:
@@ -54,6 +81,16 @@ def training_kNeigh(x_tr, y_tr, hyperparam = None):
     return neigh.fit(x_tr, y_tr)
 
 def kNearestNeigh(x_tr, x_te, y_tr, y_te, hyperparam = None):
+    ''' Method to train and test K nearest neighbor
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            x_te, y_te: data and label for the test
+            hyperparam: if there are some
+        Returns:
+            neigh: classifier that is trained
+            train_error: error of prediction on the training set
+            test_error: error of prediction on the test set
+    '''
     if hyperparam is not None:
         neigh = training_kNeigh(x_tr, y_tr, hyperparam)
     else:
@@ -65,11 +102,21 @@ def kNearestNeigh(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return train_error, test_error
+    return neigh, train_error, test_error
 
 
 ############## Methods for Decision Tree #################
 def decision_tree(x_tr, x_te, y_tr, y_te, hyperparam=None):
+    ''' Method to train and test decision tree
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            x_te, y_te: data and label for the test
+            hyperparam: if there are some
+        Returns:
+            clf: classifier that is trained
+            train_error: error of prediction on the training set
+            test_error: error of prediction on the test set
+    '''
     if hyperparam == None: # For the case without hyperparam to optimize
         clf = tree.DecisionTreeClassifier()
         clf = clf.fit(x_tr, y_tr)
@@ -83,11 +130,21 @@ def decision_tree(x_tr, x_te, y_tr, y_te, hyperparam=None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return train_error, test_error
+    return clf, train_error, test_error
 
 
 ############## Methods for Neural Networks #################
 def neural_net(x_tr, x_te, y_tr, y_te, hyperparam = None):
+    ''' Method to train and test neural net
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            x_te, y_te: data and label for the test
+            hyperparam: if there are some
+        Returns:
+            clf: classifier that is trained
+            train_error: error of prediction on the training set
+            test_error: error of prediction on the test set
+    '''    
     if hyperparam is not None:
         clf = MLPClassifier(solver='lbfgs', alpha=hyperparam)
         clf.fit(x_tr, y_tr)
@@ -101,10 +158,20 @@ def neural_net(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return train_error, test_error
+    return clf, train_error, test_error
 
 ################# Method for SVM ####################
 def support_vectorMachine(x_tr, x_te, y_tr, y_te, hyperparam = None):
+    ''' Method to train and test support vector machine
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            x_te, y_te: data and label for the test
+            hyperparam: if there are some
+        Returns:
+            lin_clf: classifier that is trained
+            train_error: error of prediction on the training set
+            test_error: error of prediction on the test set
+    '''
     if hyperparam is not None:
         lin_clf = svm.LinearSVC() # Add the hyperparam
         lin_clf.fit(x_tr, y_tr)
@@ -122,6 +189,13 @@ def support_vectorMachine(x_tr, x_te, y_tr, y_te, hyperparam = None):
 
 ############## Methods for quadratic discr. analysis #################
 def training_QDA(x_tr, y_tr, hyperparam = None):
+    ''' Train the classifier Naive Bayes (gaussian) 
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            hyperparam: if there are some
+        Returns:
+            clf: the classifier trained
+    '''
     if hyperparam is not None:
         clf = QuadraticDiscriminantAnalysis(reg_param=hyperparam)
     else:
@@ -129,6 +203,16 @@ def training_QDA(x_tr, y_tr, hyperparam = None):
     return clf.fit(x_tr, y_tr)
 
 def discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
+    ''' Method to train and test QDA
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            x_te, y_te: data and label for the test
+            hyperparam: if there are some
+        Returns:
+            clf: classifier that is trained
+            train_error: error of prediction on the training set
+            test_error: error of prediction on the test set
+    '''
     if hyperparam is not None:
         clf = training_QDA(x_tr, y_tr, hyperparam)
     else:
@@ -142,10 +226,20 @@ def discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return train_error, test_error
+    return clf, train_error, test_error
 
 ############## Methods for Linear discriminant analysis #################
 def lin_discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
+    ''' Method to train and test LDA
+        Arguments:
+            x_tr, y_tr: data and label for the training
+            x_te, y_te: data and label for the test
+            hyperparam: if there are some
+        Returns:
+            clf: classifier that is trained
+            train_error: error of prediction on the training set
+            test_error: error of prediction on the test set
+    '''
     if hyperparam is not None:
         clf = LinearDiscriminantAnalysis(solver='lsqr',shrinkage=hyperparam)
         clf.fit(x_tr, y_tr)
@@ -159,4 +253,4 @@ def lin_discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return train_error, test_error
+    return clf, train_error, test_error

@@ -19,7 +19,7 @@ def load_data_old(dataSetCSVfile): # This come from from the first project (modi
         path_dataset, delimiter=",", skip_header=1, usecols=1)
     return rowCol_samples, data
 
-def create_csv_submission(row_users, col_movies, estim, name): # This come from the first project
+def create_csv_submission(row_users, col_movies, estim, name):
     """
     Creates an output file in csv format for submission to kaggle
     Arguments: row_users (the indices of the users)

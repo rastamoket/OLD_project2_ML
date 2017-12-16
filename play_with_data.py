@@ -5,6 +5,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 def info_general(nUser, nItem, x, data):
+    ''' To give some general information
+        Arguments:
+            nUser: the number of users
+            nItem: the number of movies
+            x: the ratings
+            data: matrix of the data (numpy)
+    '''
     print("The number of zero in the data given:\t{}".format(np.where(x == 0)[0].shape[0]))
     print("The number of ratings we have:\t\t\t{}".format(x.shape[0]))
     print("The number of missing values we expected:\t{}".format(nUser*nItem - x.shape[0]))
@@ -15,6 +22,10 @@ def info_general(nUser, nItem, x, data):
         print("\nThe loading of the data is well done")
         
 def info_ratings(data):
+    ''' To give some information about the ratings
+        Arguments:
+            data: matrix of the data (numpy)
+    '''
     ratings = np.arange(1,6)
     nb_ratings = np.zeros_like(ratings)
     
@@ -30,7 +41,14 @@ def info_ratings(data):
     plt.show()
     
 def plot_raw_data(ratings): # this come from: Machine Learning course, ex10 from the file "plots.py"
-    """plot the statistics result on raw rating data."""
+    """ plot the statistics result on raw rating data.
+        Arguments:
+            ratings: matrix of ratings
+        Returns:
+            num_items_per_user: the number of movies rated per users
+            num_users_per_item: the number of users that have rated this movie (for each movie)
+            
+    """
     # do statistics.
     num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
     num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
