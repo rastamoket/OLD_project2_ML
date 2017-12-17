@@ -5,14 +5,17 @@ import scipy.sparse as sp # In order to use sparse
 from helpers import *
 
 def rmse_movie_mean(train, test): # Idea on ex10
-    
-    ''' 
-        Compute the mean for each movie among the movies 
+    ''' Compute the mean for each movie among the movies
         For the "train set":
             take each movie (one-by-one), find the non-zero ratings, compute the mean
         For the "test set":
             take the same movie (one by one), find the non-zero ratings, compute the mse (with the train mean)
+
+    :param train: training set
+    :param test: test set
+    :return: Root Mean Squared Error
     '''
+
     mse = 0 # Initialization of the variable to store the mse
     num_movies = train.shape[1] # Get the number of movies
     
@@ -32,7 +35,13 @@ def rmse_movie_mean(train, test): # Idea on ex10
     return np.sqrt(mse/test.nnz)
 
 def init_MF(train, num_features): # Based on ex10
-    """init the parameter for matrix factorization."""
+    ''' init the parameter for matrix factorization
+
+    :param train: training set
+    :param num_features: number of features
+    :return: users_feat: the features of the users, movies_feat: features of the movies
+    '''
+
     num_users, num_movies = train.shape # To get the dimensions
     
     #********* Initialization of the features Matrix ***********
@@ -43,7 +52,15 @@ def init_MF(train, num_features): # Based on ex10
     return users_feat, movies_feat
 
 def compute_error(data, user_features, movie_features, nz): # From ex10
-    """compute the loss (MSE) of the prediction of nonzero elements."""
+    ''' compute the loss (MSE) of the prediction of nonzero elements
+
+    :param data: original data
+    :param user_features: features of the user
+    :param movie_features: features of the movie
+    :param nz: indices that correspond to non-zero ratings
+    :return: Root Mean Squared Error
+    '''
+
     # User_features: 
 
     mse = 0
@@ -55,7 +72,18 @@ def compute_error(data, user_features, movie_features, nz): # From ex10
     return np.sqrt(1.0 * mse / len(nz))
 
 def matrix_factorization_SGD(train, test, default,gamma, num_features, lambda_user, lambda_movie): # From ex10
-    """matrix factorization by SGD."""
+    ''' matrix factorization by SGD
+
+    :param train: training set
+    :param test: test set
+    :param default: parameter
+    :param gamma: hyperparameter
+    :param num_features: number of features
+    :param lambda_user: regularization term for the user
+    :param lambda_movie: regularization term for the movie
+    :return: Nothing
+    '''
+
     # define parameters
     if default:
         gamma = 0.01

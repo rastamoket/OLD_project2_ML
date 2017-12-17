@@ -8,13 +8,12 @@ from surprise import Dataset
 
 def valid_ratings(ratings, num_items_per_user, num_users_per_item, min_num_ratings): # This is based on the ex10
     ''' To select only the users and items that give "enough" ratings
-        Arguments:
-            rating: the original values 
-            num_items_per_user: the number of movies rated per user
-            num_users_per_item: the number of users that had rate the movie
-            min_num_ratings: number of minimal ratings we want for users and movies
-        Returns:
-            valid_ratings: only the ratings for the users and movies that has at least min_num_ratings
+
+    :param ratings: the original values
+    :param num_items_per_user: the number of movies rated per user
+    :param num_users_per_item: the number of users that had rate the movie
+    :param min_num_ratings: number of minimal ratings we want for users and movies
+    :return: valid_ratings: only the ratings for the users and movies that has at least min_num_ratings
     '''
     valid_users = np.where(num_items_per_user >= min_num_ratings)[0] # Take only the users that have at least the min_num_ratings (indices)
     valid_items = np.where(num_users_per_item >= min_num_ratings)[0] # Take only the movies that have at least the min_num_ratings (indices)
@@ -23,14 +22,14 @@ def valid_ratings(ratings, num_items_per_user, num_users_per_item, min_num_ratin
     return valid_ratings
 
 def split_data(ratings, prob_test=0.1): # This is based on the ex10
-    ''' To split the data set in training and test 
-        Arguments:
-            ratings: the matrix of ratings that we want to split
-            prob_test: the probability to put in the test set (default = 0.1)
-        Returns:
-            train: training matrix (90% of the ratings for each column)
+    ''' To split the data set in training and test
+
+    :param ratings: the matrix of ratings that we want to split
+    :param prob_test: the probability to put in the test set (default = 0.1)
+    :return: train: training matrix (90% of the ratings for each column),
             test: test matrix (10% of the ratings for each column)
     '''
+
     #******** Creation of the two matrices ***********
     train = sp.lil_matrix((ratings.shape[0], ratings.shape[1])) # Training set 
     test = sp.lil_matrix((ratings.shape[0], ratings.shape[1])) # Test set
@@ -50,13 +49,13 @@ def split_data(ratings, prob_test=0.1): # This is based on the ex10
     
 def formating_data_surprise(ratings, dataF_return = False):
     ''' To put the data in the format needed to use "surprise"
-        Arguments:
-            ratings: the ratings (sparse matrix)
-            dataF_return: to choose if we want to return or not the dataframe (default = False)
-        Returns:
-            dataF: dataframe with movies ID, ratings, users ID (only returned if dataF_return = True)
-            Dataset.load_from_df: this is a dataset for surprise    
+
+    :param ratings: the ratings (sparse matrix)
+    :param dataF_return: to choose if we want to return or not the dataframe (default = False)
+    :return: dataF: dataframe with movies ID, ratings, users ID (only returned if dataF_return = True),
+            Dataset.load_from_df: this is a dataset for surprise
     '''
+
     movies, users, ratings_nnz = sp.find(ratings.T) # get the movies, users and non-zero ratings
     # Create the dictionary with all the values (movies ID, ratings, users ID)
     IDs_dict = {'movies ID': movies+1,
