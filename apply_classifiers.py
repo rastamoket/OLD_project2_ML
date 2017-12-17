@@ -17,7 +17,8 @@ def try_allClassifiers(classifiers_method, x_tr, x_te, y_tr, y_te):
 
     best_test_error = 1 # This is only in order to define the variables and then it will be updated with the lowest test_error
 
-    for method_clf in classifiers_method: # loop over the methods
+    for i,method_clf in enumerate(classifiers_method): # loop over the methods
+        print('classifier loop:\t{}/{}'.format(i, len(classifiers_method)))
         clf, train_error, test_error = method_clf(x_tr, x_te, y_tr, y_te)
         if test_error < best_test_error:
             best_test_error = test_error

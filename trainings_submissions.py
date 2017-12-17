@@ -12,8 +12,8 @@ def first_train(ratings,algorithm, test = [],submit = False):
         trainset_pred = train_set.build_testset() # Build iterable object in order to test 
 
         # C'est notre test set donc utiliser plus tard
-        ratings_test = formating_data_surprise(validation_ratings)
-        validation_set = ratings_test.build_full_trainset()
+        #ratings_test = formating_data_surprise(validation_ratings)
+        #validation_set = ratings_test.build_full_trainset()
 
         prediction_df = dataF_train.copy()
         

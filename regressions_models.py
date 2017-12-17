@@ -17,8 +17,9 @@ def try_linRegressors(regressions_method, x_tr, x_te, y_tr, y_te):
 
     best_rmse = 1000 # Put very large like that it will be update to the RMSE find with one of the method
     #******* select the best regressor ******
-    for regressor in regressions_method: # Loop over all the regressors
-        reg = regressor() 
+    for i,regressor in enumerate(regressions_method): # Loop over all the regressors
+        print('regression loop:\t{}/{}'.format(i, len(regressions_method)))
+        reg = regressor 
         reg.fit(x_tr, y_tr) # Training of the regressor
         pred = x_te.dot(reg.coef_) # Compute the prediction by multiply each column (feature) by the coef find in the training of the reg
 
