@@ -68,13 +68,12 @@ def lin_regressors(data, regressions_method, regressor_hyperparam = None):
 
     return best_lin_regressor, best_rmse
 
-def optimization_regressor(data, regressor, hyperparameters, ratio = 0.85):
+def optimization_regressor(data, regressor, hyperparameters):
     ''' To optimize the hyperparameters of the regressor
 
     :param data: predictions from every algorithms
     :param regressor: method to apply regression
     :param hyperparameters: the different possible values of certain parameter of the regressor
-    :param ratio: for the splitting of training and test set (default = 0.85)
     :return: regressor_optimized: contain the regressor with all the optimization information
     '''
 
