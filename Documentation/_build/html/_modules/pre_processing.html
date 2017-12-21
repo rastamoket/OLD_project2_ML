@@ -1,0 +1,176 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pre_processing &#8212; Project_2 Recommender System 2.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pre_processing</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39; Some functions to do the pre-processing &#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span> <span class="c1"># In order to use sparse Matrix</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">dataset</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">Dataset</span>
+
+<div class="viewcode-block" id="valid_ratings"><a class="viewcode-back" href="../code_documentation.html#pre_processing.valid_ratings">[docs]</a><span class="k">def</span> <span class="nf">valid_ratings</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">num_items_per_user</span><span class="p">,</span> <span class="n">num_users_per_item</span><span class="p">,</span> <span class="n">min_num_ratings</span><span class="p">):</span> <span class="c1"># This is based on the ex10</span>
+    <span class="sd">&#39;&#39;&#39; To select only the users and items that give &quot;enough&quot; ratings</span>
+
+<span class="sd">    :param ratings: the original values</span>
+<span class="sd">    :param num_items_per_user: the number of movies rated per user</span>
+<span class="sd">    :param num_users_per_item: the number of users that had rate the movie</span>
+<span class="sd">    :param min_num_ratings: number of minimal ratings we want for users and movies</span>
+<span class="sd">    :return: valid_ratings: only the ratings for the users and movies that has at least min_num_ratings</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">valid_users</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">num_items_per_user</span> <span class="o">&gt;=</span> <span class="n">min_num_ratings</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># Take only the users that have at least the min_num_ratings (indices)</span>
+    <span class="n">valid_items</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">num_users_per_item</span> <span class="o">&gt;=</span> <span class="n">min_num_ratings</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># Take only the movies that have at least the min_num_ratings (indices)</span>
+
+    <span class="n">valid_ratings</span> <span class="o">=</span> <span class="n">ratings</span><span class="p">[</span><span class="n">valid_items</span><span class="p">,</span> <span class="p">:][:</span> <span class="p">,</span> <span class="n">valid_users</span><span class="p">]</span> <span class="c1"># Create the matrix with only the valid users and items       </span>
+    <span class="k">return</span> <span class="n">valid_ratings</span></div>
+
+<div class="viewcode-block" id="split_data"><a class="viewcode-back" href="../code_documentation.html#pre_processing.split_data">[docs]</a><span class="k">def</span> <span class="nf">split_data</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">prob_test</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span> <span class="c1"># This is based on the ex10</span>
+    <span class="sd">&#39;&#39;&#39; To split the data set in training and test</span>
+
+<span class="sd">    :param ratings: the matrix of ratings that we want to split</span>
+<span class="sd">    :param prob_test: the probability to put in the test set (default = 0.1)</span>
+<span class="sd">    :return: train: training matrix (90% of the ratings for each column),</span>
+<span class="sd">            test: test matrix (10% of the ratings for each column)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1">#******** Creation of the two matrices ***********</span>
+    <span class="n">train</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">lil_matrix</span><span class="p">((</span><span class="n">ratings</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ratings</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="c1"># Training set </span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">lil_matrix</span><span class="p">((</span><span class="n">ratings</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ratings</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="c1"># Test set</span>
+    
+    <span class="c1">#******** Distribution of the samples in the two matrices ********</span>
+    <span class="n">nonz_users</span><span class="p">,</span> <span class="n">nonz_items</span> <span class="o">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span> <span class="c1"># to have the indices of the elements that have non-zero rating</span>
+    
+    <span class="k">for</span> <span class="n">nz_u</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">nonz_users</span><span class="p">):</span> <span class="c1"># Loop over all the indices of the users that contain at least one non-zero value</span>
+        <span class="n">r</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="n">ratings</span><span class="p">[</span><span class="n">nz_u</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span> <span class="c1"># To have only the non-zero ratings for this user &quot;nz_u&quot;</span>
+        <span class="n">te</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">*</span><span class="n">prob_test</span><span class="p">))</span> <span class="c1"># We choose randomly which values will go to the test (for each column)</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">te</span><span class="p">))</span> <span class="c1"># All the others elements in this column are in the train</span>
+        
+        <span class="n">test</span><span class="p">[</span><span class="n">nz_u</span><span class="p">,</span><span class="n">te</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratings</span><span class="p">[</span><span class="n">nz_u</span><span class="p">,</span><span class="n">te</span><span class="p">]</span> <span class="c1"># Fill in the matrix test</span>
+        <span class="n">train</span><span class="p">[</span><span class="n">nz_u</span><span class="p">,</span> <span class="n">tr</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratings</span><span class="p">[</span><span class="n">nz_u</span><span class="p">,</span> <span class="n">tr</span><span class="p">]</span> <span class="c1"># Fill in the matrix train</span>
+            
+    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span></div>
+    
+<div class="viewcode-block" id="formating_data_surprise"><a class="viewcode-back" href="../code_documentation.html#pre_processing.formating_data_surprise">[docs]</a><span class="k">def</span> <span class="nf">formating_data_surprise</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">dataF_return</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; To put the data in the format needed to use &quot;surprise&quot;</span>
+
+<span class="sd">    :param ratings: the ratings (sparse matrix)</span>
+<span class="sd">    :param dataF_return: to choose if we want to return or not the dataframe (default = False)</span>
+<span class="sd">    :return: dataF: dataframe with movies ID, ratings, users ID (only returned if dataF_return = True),</span>
+<span class="sd">            Dataset.load_from_df: this is a dataset for surprise</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">movies</span><span class="p">,</span> <span class="n">users</span><span class="p">,</span> <span class="n">ratings_nnz</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ratings</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="c1"># get the movies, users and non-zero ratings</span>
+    <span class="c1"># Create the dictionary with all the values (movies ID, ratings, users ID)</span>
+    <span class="n">IDs_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;movies ID&#39;</span><span class="p">:</span> <span class="n">movies</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;ratings&#39;</span><span class="p">:</span> <span class="n">ratings_nnz</span><span class="p">,</span>
+                <span class="s1">&#39;users ID&#39;</span><span class="p">:</span> <span class="n">users</span><span class="o">+</span><span class="mi">1</span>
+               <span class="p">}</span>
+
+    <span class="n">ratings_representation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">IDs_dict</span><span class="p">)</span> <span class="c1"># Creation of the dataframe from the dictionary</span>
+
+    <span class="n">dataF</span> <span class="o">=</span> <span class="n">ratings_representation</span><span class="p">[</span><span class="n">ratings_representation</span><span class="o">.</span><span class="n">ratings</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># Take only the ratings that are non zero (this is maybe already good)</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">rating_scale</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span> <span class="c1"># Creation of the reader to create a dataset (ratings scale: from 1 to 5), this is something from surprise</span>
+    <span class="k">if</span> <span class="n">dataF_return</span><span class="p">:</span> <span class="c1"># Condition to return also the dataF</span>
+        <span class="k">return</span> <span class="n">dataF</span><span class="p">,</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">load_from_df</span><span class="p">(</span><span class="n">dataF</span><span class="p">[[</span><span class="s1">&#39;users ID&#39;</span><span class="p">,</span> <span class="s1">&#39;movies ID&#39;</span><span class="p">,</span> <span class="s1">&#39;ratings&#39;</span><span class="p">]],</span> <span class="n">reader</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">load_from_df</span><span class="p">(</span><span class="n">dataF</span><span class="p">[[</span><span class="s1">&#39;users ID&#39;</span><span class="p">,</span> <span class="s1">&#39;movies ID&#39;</span><span class="p">,</span> <span class="s1">&#39;ratings&#39;</span><span class="p">]],</span> <span class="n">reader</span><span class="p">)</span></div>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Project_2 Recommender System</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_structure.html">Structure of the code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation.html">Code Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Dubois Etienne, Froelicher Stefan, Perret Ivan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

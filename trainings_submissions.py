@@ -3,19 +3,30 @@ from classifiers_models import *
 from pre_processing import *
 
 def first_train(ratings,algorithm, test = [],submit = False):
+    ''' to apply the differents algorithms from surprise on the ratings
+
+    :param ratings: original data, training data
+    :param algorithm: list of algorithms we want to apply on the data
+    :param test: test set (default = empty)
+    :param submit: to choose if it is only for training or also to apply on the test set (default = False)
+    :return: prediction_df or prediction_test_df: contain the prediction and the label, algos_trained: list of the algo once they are trained
+    '''
     
     if not submit:
+
+        #/////////////// DELETE \\\\\\\\\\\\\\\\\\\\\\\\\\ todo --> Delete all the comments
+
         ########### Define: algo, dataset (trainset ##############
         dataF_train, ratings_train = formating_data_surprise(ratings, True) # Create the Dataset for surprise (training set)
 
         train_set = ratings_train.build_full_trainset() # Build trainset
-        trainset_pred = train_set.build_testset() # Build iterable object in order to test 
+        #trainset_pred = train_set.build_testset() # Build iterable object in order to test
 
-        # C'est notre test set donc utiliser plus tard
+        # TODO: can we throw this away??????????
         #ratings_test = formating_data_surprise(validation_ratings)
         #validation_set = ratings_test.build_full_trainset()
 
-        prediction_df = dataF_train.copy()
+        #prediction_df = dataF_train.copy()
         
         algos_trained = []
         
@@ -23,20 +34,22 @@ def first_train(ratings,algorithm, test = [],submit = False):
 
             algo.train(train_set) # Training of the algo
             algos_trained.append(algo)
-            pred = algo.test(trainset_pred) # Make the prediction
 
-            ########## Creation of the lists: row_users, col_movies, estim ########
-            estim = [] # initialization of the list estim
 
-            for p in pred: # To loop over the prediction done by the algo on the test set
-                estim.append(p.est) # fill this list with the ratings
+            #pred = algo.test(trainset_pred) # Make the prediction
 
-            d = {'prediction' : pd.Series(estim)}
-            temp = pd.DataFrame(d)
-            prediction_df = pd.concat([prediction_df,temp], axis=1)  
+            ########## Creation of the list: estim ########
+            #estim = [] # initialization of the list estim
 
-        return prediction_df, algos_trained
+            #for p in pred: # To loop over the prediction done by the algo on the test set
+                #estim.append(p.est) # fill this list with the ratings
 
+            #d = {'prediction' : pd.Series(estim)}
+            #temp = pd.DataFrame(d)
+            #prediction_df = pd.concat([prediction_df,temp], axis=1)
+
+        #return prediction_df, algos_trained
+        return algos_trained # WARNING --> need to change in the NoteBook and in all the implementation
 
     else:
         
@@ -49,7 +62,7 @@ def first_train(ratings,algorithm, test = [],submit = False):
         testset = test_trainset.build_testset()
         
         prediction_test_df = data_test.copy()
-        for i, algo in enumerate (algorithm):
+        for i, algo in enumerate(algorithm):
             algo.train(trainset) # Training of the algo
             pred = algo.test(testset) # Make the prediction
 
@@ -66,6 +79,12 @@ def first_train(ratings,algorithm, test = [],submit = False):
         return prediction_test_df
 
 def second_train_df(df, list_algo_name):
+    ''' to re-arrange the dataframe after the method "firs_train"
+
+    :param df: dataframe that contain movies and users ID, label and all the predictions
+    :param list_algo_name: list of the name of the algorithms we used
+    :return: train_df: contain label and the predictions, moviesID_usersID_df: contain the users and movies ID
+    '''
     
     columns = ['Label']
     columns = sum([columns, list_algo_name],[])

@@ -1,0 +1,291 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>helpers &#8212; Project_2 Recommender System 2.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for helpers</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;some helper functions.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">groupby</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span> <span class="c1"># In order to use sparse </span>
+<span class="kn">import</span> <span class="nn">csv</span>
+
+
+<div class="viewcode-block" id="load_data_old"><a class="viewcode-back" href="../code_documentation.html#helpers.load_data_old">[docs]</a><span class="k">def</span> <span class="nf">load_data_old</span><span class="p">(</span><span class="n">dataSetCSVfile</span><span class="p">):</span> <span class="c1"># This come from from the first project (modified)</span>
+    <span class="sd">&#39;&#39;&#39;Load data and convert it to the metrics system.</span>
+
+<span class="sd">    :param dataSetCSVfile: path of the CSV file</span>
+<span class="sd">    :return: rowCol_samples: position (r##_c##), data: ratings</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">path_dataset</span> <span class="o">=</span> <span class="n">dataSetCSVfile</span> <span class="c1"># path of the data we want to load</span>
+    <span class="c1"># To get the id of the samples</span>
+    <span class="n">rowCol_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span>
+        <span class="n">path_dataset</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unicode_</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">skip_header</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">deletechars</span> <span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+
+    <span class="c1"># &quot;data&quot; will contain all the features for each samples so it will be a NxM matrix (with N = sumber of sample, M = number of features)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span>
+        <span class="n">path_dataset</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">skip_header</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rowCol_samples</span><span class="p">,</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="create_csv_submission"><a class="viewcode-back" href="../code_documentation.html#helpers.create_csv_submission">[docs]</a><span class="k">def</span> <span class="nf">create_csv_submission</span><span class="p">(</span><span class="n">row_users</span><span class="p">,</span> <span class="n">col_movies</span><span class="p">,</span> <span class="n">estim</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Creates an output file in csv format for submission to kaggle</span>
+
+<span class="sd">    :param row_users: the indices of the users</span>
+<span class="sd">    :param col_movies: the indices of the movies</span>
+<span class="sd">    :param estim: the estimated ratings</span>
+<span class="sd">    :param name: string name of .csv output file to be created</span>
+<span class="sd">    :return: Nothing, it creates a csv file</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span>  <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+        <span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">,</span> <span class="s1">&#39;Prediction&#39;</span><span class="p">]</span> <span class="c1"># Define the fieldnames</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fieldnames</span><span class="p">)</span> <span class="c1"># creation of the writer with a dictionary</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span> <span class="c1"># To write the header row</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">row_users</span><span class="p">,</span> <span class="n">col_movies</span><span class="p">,</span> <span class="n">estim</span><span class="p">):</span> <span class="c1"># Loop over the indices and ratings</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">({</span><span class="s1">&#39;Id&#39;</span><span class="p">:</span><span class="s1">&#39;r</span><span class="si">{}</span><span class="s1">_c</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span><span class="s1">&#39;Prediction&#39;</span><span class="p">:</span><span class="n">e</span><span class="p">})</span><span class="c1">#int(round(e))}) # In order to have everything in each row in the right format</span></div>
+
+
+
+
+<div class="viewcode-block" id="read_txt"><a class="viewcode-back" href="../code_documentation.html#helpers.read_txt">[docs]</a><span class="k">def</span> <span class="nf">read_txt</span><span class="p">(</span><span class="n">path</span><span class="p">):</span> <span class="c1"># This come from the ex10, &#39;helpers.py&#39;</span>
+    <span class="sd">&#39;&#39;&#39; to read txt</span>
+
+<span class="sd">    :param path: path of the file</span>
+<span class="sd">    :return: what is read</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="load_data"><a class="viewcode-back" href="../code_documentation.html#helpers.load_data">[docs]</a><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">path_dataset</span><span class="p">):</span> <span class="c1"># This come from the ex10, &#39;helpers.py&#39;</span>
+    <span class="sd">&#39;&#39;&#39; Load data in text format, one rating per line, as in the kaggle competition</span>
+
+<span class="sd">    :param path_dataset: path of the file that contains the data (.csv)</span>
+<span class="sd">    :return: the pre-processed data</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">read_txt</span><span class="p">(</span><span class="n">path_dataset</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="preprocess_data"><a class="viewcode-back" href="../code_documentation.html#helpers.preprocess_data">[docs]</a><span class="k">def</span> <span class="nf">preprocess_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span> <span class="c1"># This come from the ex10, &#39;helpers.py&#39;</span>
+    <span class="sd">&#39;&#39;&#39; preprocessing the text data, conversion to numerical array format</span>
+
+<span class="sd">    :param data: original data set</span>
+<span class="sd">    :return: ratings: pre-processed data</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">deal_line</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="n">pos</span><span class="p">,</span> <span class="n">rating</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">rating</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">statistics</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">row</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">row</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+    <span class="c1"># parse each line</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">deal_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+
+    <span class="c1"># do statistics on the dataset.</span>
+    <span class="n">min_row</span><span class="p">,</span> <span class="n">max_row</span><span class="p">,</span> <span class="n">min_col</span><span class="p">,</span> <span class="n">max_col</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;number of users: </span><span class="si">{}</span><span class="s2">, number of items: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_row</span><span class="p">,</span> <span class="n">max_col</span><span class="p">))</span> <span class="c1"># Little modification here, in order to print the correct numbers</span>
+
+    <span class="c1"># build rating matrix.</span>
+    <span class="n">ratings</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">lil_matrix</span><span class="p">((</span><span class="n">max_row</span><span class="p">,</span> <span class="n">max_col</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">rating</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">ratings</span><span class="p">[</span><span class="n">row</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rating</span>
+    <span class="k">return</span> <span class="n">ratings</span></div>
+
+
+<div class="viewcode-block" id="group_by"><a class="viewcode-back" href="../code_documentation.html#helpers.group_by">[docs]</a><span class="k">def</span> <span class="nf">group_by</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span> <span class="c1"># This come from the ex10, &#39;helpers.py&#39;</span>
+    <span class="sd">&#39;&#39;&#39; group list of list by a specific index</span>
+
+<span class="sd">    :param data: what we want to sort</span>
+<span class="sd">    :param index: index</span>
+<span class="sd">    :return: groupby_data: data sorted</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">sorted_data</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+    <span class="n">groupby_data</span> <span class="o">=</span> <span class="n">groupby</span><span class="p">(</span><span class="n">sorted_data</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">groupby_data</span></div>
+
+
+<div class="viewcode-block" id="build_index_groups"><a class="viewcode-back" href="../code_documentation.html#helpers.build_index_groups">[docs]</a><span class="k">def</span> <span class="nf">build_index_groups</span><span class="p">(</span><span class="n">train</span><span class="p">):</span> <span class="c1"># This come from the ex10, &#39;helpers.py&#39;</span>
+    <span class="sd">&#39;&#39;&#39; build groups for nnz rows and cols</span>
+
+<span class="sd">    :param train: train set that need to be split several fold</span>
+<span class="sd">    :return: nz_train, nz_row_colindices, nz_col_rowindices</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">nz_row</span><span class="p">,</span> <span class="n">nz_col</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">nz_train</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">nz_row</span><span class="p">,</span> <span class="n">nz_col</span><span class="p">))</span>
+
+    <span class="n">grouped_nz_train_byrow</span> <span class="o">=</span> <span class="n">group_by</span><span class="p">(</span><span class="n">nz_train</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">nz_row_colindices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">g</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]))</span>
+                         <span class="k">for</span> <span class="n">g</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">grouped_nz_train_byrow</span><span class="p">]</span>
+
+    <span class="n">grouped_nz_train_bycol</span> <span class="o">=</span> <span class="n">group_by</span><span class="p">(</span><span class="n">nz_train</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">nz_col_rowindices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">g</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]))</span>
+                         <span class="k">for</span> <span class="n">g</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">grouped_nz_train_bycol</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">nz_train</span><span class="p">,</span> <span class="n">nz_row_colindices</span><span class="p">,</span> <span class="n">nz_col_rowindices</span></div>
+
+<div class="viewcode-block" id="get_label_predictions"><a class="viewcode-back" href="../code_documentation.html#helpers.get_label_predictions">[docs]</a><span class="k">def</span> <span class="nf">get_label_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; To get the label (real ratings) and the predictions from the data</span>
+
+<span class="sd">    :param data: dataframe, columns: real ratings + each model&#39;s predictions, rows: userID and movieID</span>
+<span class="sd">    :return: data_predictions_np: all the predicitions from each algos (as numpy array), data_label_np: label (real ratings) (as numpy array)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1">########### Splitting the data in training and test sets ###############</span>
+    <span class="c1">#******* Split in label and predictions from data *********</span>
+    <span class="n">data_predictions</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># In order to not modify the original data</span>
+    <span class="n">data_predictions</span> <span class="o">=</span> <span class="n">data_predictions</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Label&#39;</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># Contain only the predictions made by each model</span>
+    <span class="n">data_label</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Label&#39;</span><span class="p">]</span> <span class="c1"># Contain only the labels --&gt; the real ratings</span>
+
+    <span class="c1">#******* Transform in numpy ********</span>
+    <span class="n">data_predictions_np</span> <span class="o">=</span> <span class="n">data_predictions</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+    <span class="n">data_label_np</span> <span class="o">=</span> <span class="n">data_label</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">data_predictions_np</span><span class="p">,</span> <span class="n">data_label_np</span></div>
+
+<div class="viewcode-block" id="split_predictions_data"><a class="viewcode-back" href="../code_documentation.html#helpers.split_predictions_data">[docs]</a><span class="k">def</span> <span class="nf">split_predictions_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span> <span class="c1"># Come from project 1</span>
+    <span class="sd">&#39;&#39;&#39; split the dataset based on the split ratio</span>
+
+<span class="sd">    :param x: data set</span>
+<span class="sd">    :param y: label</span>
+<span class="sd">    :param ratio: ratio of data that will be in the training set</span>
+<span class="sd">    :param seed: to randomize</span>
+<span class="sd">    :return: x_tr: training data, x_te: test data, y_tr: training label, y_te: test label</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="c1">#set seed</span>
+    <span class="c1">#******* generate random indices ********</span>
+    <span class="n">num_row</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="c1"># get the number of rows</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">num_row</span><span class="p">)</span> <span class="c1"># to randomize</span>
+    <span class="n">index_split</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">ratio</span> <span class="o">*</span> <span class="n">num_row</span><span class="p">))</span> <span class="c1"># where we split</span>
+    <span class="n">index_tr</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[:</span> <span class="n">index_split</span><span class="p">]</span> <span class="c1"># indexes for training</span>
+    <span class="n">index_te</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="n">index_split</span><span class="p">:]</span> <span class="c1"># indexes for test</span>
+
+    <span class="c1">#******** create split *********</span>
+    <span class="n">x_tr</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">index_tr</span><span class="p">]</span>
+    <span class="n">x_te</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">index_te</span><span class="p">]</span>
+    <span class="n">y_tr</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">index_tr</span><span class="p">]</span>
+    <span class="n">y_te</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">index_te</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span></div>
+
+
+<div class="viewcode-block" id="calculate_mse"><a class="viewcode-back" href="../code_documentation.html#helpers.calculate_mse">[docs]</a><span class="k">def</span> <span class="nf">calculate_mse</span><span class="p">(</span><span class="n">real_label</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span> <span class="c1"># This come from the ex10, &#39;helpers.py&#39;</span>
+    <span class="sd">&#39;&#39;&#39; calculate MSE</span>
+
+<span class="sd">    :param real_label: the correct label</span>
+<span class="sd">    :param prediction: the prediction of the label</span>
+<span class="sd">    :return: the Mean Squared Error</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">real_label</span> <span class="o">-</span> <span class="n">prediction</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Project_2 Recommender System</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_structure.html">Structure of the code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation.html">Code Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Dubois Etienne, Froelicher Stefan, Perret Ivan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

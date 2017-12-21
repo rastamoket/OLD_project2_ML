@@ -1,0 +1,200 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>run &#8212; Project_2 Recommender System 2.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for run</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot; Run everything to obtain our best prediction &quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">helpers</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">trainings_submissions</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">SVDpp</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">KNNBaseline</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">SVD</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">SlopeOne</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">BaselineOnly</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">KNNWithMeans</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">NMF</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">CoClustering</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">KNNBasic</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">KNNWithZScore</span> <span class="c1"># not scored --&gt; to be tested quickly</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">dataset</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">evaluate</span><span class="p">,</span> <span class="n">print_perf</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">GridSearch</span>
+<span class="kn">from</span> <span class="nn">surprise</span> <span class="k">import</span> <span class="n">accuracy</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">mean_squared_error</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">linear_model</span>
+
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../code_documentation.html#run.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39; To run everything to obtain the best prediction</span>
+
+<span class="sd">    :return: Nothing, it creates a .CSV file that is ready for the online submission</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1">############# Load the data #############</span>
+    <span class="n">ratings</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;./data_train.csv&#39;</span><span class="p">)</span> <span class="c1"># Load the training set</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;./sample_submission.csv&#39;</span><span class="p">)</span> <span class="c1"># Load the test set, in order to create the submission file later</span>
+
+    <span class="c1">############# Apply algorithms from Surprise #############</span>
+    <span class="c1">#************ Initialize the lists of the algorithms with parameters already optimized ************</span>
+
+    <span class="c1"># TODO: optimization of the algos</span>
+    <span class="n">sim_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;pearson_baseline&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;user_based&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                   <span class="s1">&#39;shrinkage&#39;</span><span class="p">:</span> <span class="mi">500</span>
+                   <span class="p">}</span>
+
+    <span class="n">algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="n">SVDpp</span><span class="p">(),</span>
+                  <span class="n">KNNBaseline</span><span class="p">(</span><span class="n">sim_options</span><span class="o">=</span><span class="n">sim_options</span><span class="p">),</span>
+                  <span class="n">NMF</span><span class="p">(),</span>
+                  <span class="n">SVD</span><span class="p">(),</span>
+                  <span class="n">SlopeOne</span><span class="p">(),</span>
+                  <span class="n">BaselineOnly</span><span class="p">(),</span>
+                  <span class="n">KNNWithZScore</span><span class="p">(</span><span class="n">sim_options</span><span class="o">=</span><span class="n">sim_options</span><span class="p">)</span>
+                  <span class="p">]</span>
+
+    <span class="n">columns_name</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SVDpp&#39;</span><span class="p">,</span> <span class="c1"># This list is usefull to define the name of the columns of the predictions</span>
+                    <span class="s1">&#39;KNNBaseline&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;NMF&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;SVD&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;SlopeOne&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;BaselineOnly&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;KNNWithZScore&#39;</span>
+                    <span class="p">]</span>
+
+    <span class="c1">#*********** TRAINING **************</span>
+    <span class="c1">#----------- Predictions on the training set by the algorithms ---------------</span>
+    <span class="n">predictions_notClean_train_df</span><span class="p">,</span> <span class="n">algos_trained</span> <span class="o">=</span> <span class="n">first_train</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">algorithms</span><span class="p">)</span> <span class="c1"># Apply the algorithms on training set</span>
+    <span class="n">predictions_clean_train_df</span><span class="p">,</span> <span class="n">moviesID_usersID_train_df</span> <span class="o">=</span> <span class="n">second_train_df</span><span class="p">(</span><span class="n">predictions_notClean_train_df</span><span class="p">,</span> <span class="n">columns_name</span><span class="p">)</span> <span class="c1"># get label+predictions, and moviesID and usersID</span>
+
+    <span class="c1">#----------- Training the regressor on the whole training set ---------------</span>
+    <span class="n">regressor</span> <span class="o">=</span>  <span class="n">linear_model</span><span class="o">.</span><span class="n">HuberRegressor</span><span class="p">()</span> <span class="c1"># This is the best regressor we&#39;ve found and optimize</span>
+    <span class="n">training_predictions_set</span><span class="p">,</span> <span class="n">training_predictions_label</span> <span class="o">=</span> <span class="n">get_label_predictions</span><span class="p">(</span><span class="n">predictions_clean_train_df</span><span class="p">)</span>
+
+    <span class="c1">#___________ Adding the offset parameter (column of 1) __________________</span>
+    <span class="n">col_one</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">training_predictions_set</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="c1"># Create a column of ones (offset parameter)</span>
+    <span class="n">training_predictions_set</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">training_predictions_set</span><span class="p">)</span> <span class="c1"># Put the training_prediction_set in Dataframe type</span>
+    <span class="n">training_predictions_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">col_one</span><span class="p">,</span> <span class="n">training_predictions_set</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Add the column of 1, the offset at the prediction set</span>
+
+    <span class="c1">#___________ Training of the regressor _______________</span>
+    <span class="n">regressor</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_predictions_set</span><span class="p">,</span> <span class="n">training_predictions_label</span><span class="p">)</span> <span class="c1"># Here we do the training, find the weights of the regression</span>
+
+    <span class="c1">#*********** Predict the unknown ratings **********</span>
+    <span class="n">predictions_notClean_df</span> <span class="o">=</span> <span class="n">first_train</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">algorithms</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">predictions_clean_df</span><span class="p">,</span> <span class="n">moviesID_usersID_df</span> <span class="o">=</span> <span class="n">second_train_df</span><span class="p">(</span><span class="n">predictions_notClean_df</span><span class="p">,</span> <span class="n">columns_name</span><span class="p">)</span>
+
+    <span class="c1">#___________ Remove the &quot;label&quot; column _______________</span>
+    <span class="n">predictions_only</span> <span class="o">=</span> <span class="n">predictions_clean_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># Copy in order to not act on the original one</span>
+    <span class="n">predictions_only</span> <span class="o">=</span> <span class="n">predictions_only</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">predictions_only</span><span class="o">.</span><span class="n">columns</span><span class="p">[[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># remove the &quot;label&quot; column, keep only the predictions</span>
+
+    <span class="c1">#___________ Adding the offset parameter (column of 1) __________________</span>
+    <span class="n">col_one_unknown</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">predictions_only</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="c1"># Create a column of ones (offset parameter)</span>
+    <span class="n">predictions_only</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">col_one_unknown</span><span class="p">,</span> <span class="n">predictions_only</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Add the column of 1, the offset at the prediction set</span>
+
+    <span class="c1">#----------- Apply regression on the predictions of the unknown ratings ------------------</span>
+    <span class="n">predicted</span> <span class="o">=</span> <span class="n">predictions_only</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">regressor</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span> <span class="c1"># Compute the predictions of the unknown ratings</span>
+    <span class="n">moviesID_usersID_df</span><span class="p">[</span><span class="s1">&#39;Prediction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">predicted</span> <span class="c1"># Now the variable &quot;movies_usersID_df&quot; contains all the values we need to create the submission file</span>
+
+    <span class="c1">############ Creation of the submission file #############</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;best_submission.csv&#39;</span>
+    <span class="n">create_csv_submission</span><span class="p">(</span><span class="n">moviesID_usersID_df</span><span class="p">[</span><span class="s1">&#39;users ID&#39;</span><span class="p">],</span> <span class="n">moviesID_usersID_df</span><span class="p">[</span><span class="s1">&#39;movies ID&#39;</span><span class="p">],</span> <span class="n">moviesID_usersID_df</span><span class="p">[</span><span class="s1">&#39;Prediction&#39;</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Project_2 Recommender System</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_structure.html">Structure of the code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation.html">Code Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Dubois Etienne, Froelicher Stefan, Perret Ivan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

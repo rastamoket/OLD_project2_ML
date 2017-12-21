@@ -1,0 +1,16 @@
+Structure of the code
+===========================
+
+We used Jupyter notebook as the main code for our project. In this notebook we call the different methods we've implemented in order to apply algorithms and do some optimization. Here we will give the overall structure of the code we've written in the Jupyter notebook.
+
+* Preview of the given data and some statistics
+* Trying to apply different algorithms from the library "Surprise"
+	* Do some optimization on the parameters of the algorithms
+* Use the predictions of all the algorithms and try several techniques to obtain a good final prediction
+	#. Majority vote
+	#. Mean of the predictions
+	#. Apply classifiers on the predictions (from sklearn)
+	#. Apply regressors on the predictions (from sklearn)
+		* Do some optimization on the parameters
+* Possibility to run the code for obtaining our best result (in run.py)
+

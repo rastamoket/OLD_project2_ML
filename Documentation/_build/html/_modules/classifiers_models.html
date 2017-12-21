@@ -1,0 +1,373 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>classifiers_models &#8212; Project_2 Recommender System 2.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for classifiers_models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot; Different classifiers &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span> <span class="c1"># In order to use sparse</span>
+<span class="kn">import</span> <span class="nn">sklearn</span> <span class="k">as</span> <span class="nn">sk</span>
+<span class="c1"># Import for sklearn, in order to implement the different classifiers</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">KFold</span> <span class="c1"># for cross validation</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="k">import</span> <span class="n">KNeighborsClassifier</span> <span class="c1"># For k nearest neighbor</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">tree</span> <span class="c1"># For the decision tree</span>
+<span class="kn">from</span> <span class="nn">sklearn.neural_network</span> <span class="k">import</span> <span class="n">MLPClassifier</span> <span class="c1"># Neural network</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">svm</span> <span class="c1"># Support Vector Machine</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="k">import</span> <span class="n">GaussianNB</span> <span class="c1"># Naive Bayes, Gaussian</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="k">import</span> <span class="n">MultinomialNB</span> <span class="c1"># Naive Bayes, multinomial</span>
+<span class="kn">from</span> <span class="nn">sklearn.discriminant_analysis</span> <span class="k">import</span> <span class="n">LinearDiscriminantAnalysis</span> <span class="c1"># Linear Discriminant Analysis</span>
+<span class="kn">from</span> <span class="nn">sklearn.discriminant_analysis</span> <span class="k">import</span> <span class="n">QuadraticDiscriminantAnalysis</span> <span class="c1"># Quadratic Discriminant Analysis</span>
+
+<div class="viewcode-block" id="prediction_error"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.prediction_error">[docs]</a><span class="k">def</span> <span class="nf">prediction_error</span><span class="p">(</span><span class="n">lab_real</span><span class="p">,</span> <span class="n">lab_pred</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; To compute the error of prediction. This is done by comparison of the prediction and the real labels</span>
+
+<span class="sd">    :param lab_real: real label</span>
+<span class="sd">    :param lab_pred: prediction</span>
+<span class="sd">    :return: prediction error (number of wrong classification / number total of label)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lab_real</span> <span class="o">!=</span> <span class="n">lab_pred</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">lab_real</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<span class="c1">############## Methods for Naive Bayes #################</span>
+<div class="viewcode-block" id="training_gaussNB"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.training_gaussNB">[docs]</a><span class="k">def</span> <span class="nf">training_gaussNB</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Train the classifier Naive Bayes (gaussian)</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: clf: the classifier trained</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">GaussianNB</span><span class="p">()</span> <span class="c1"># If any hyperparameters --&gt; add here</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">GaussianNB</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="naive_bayes"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.naive_bayes">[docs]</a><span class="k">def</span> <span class="nf">naive_bayes</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Method to train and test naive bayes</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param x_te: test data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param y_te: test label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: clf: classifier that is trained,</span>
+<span class="sd">            train_error: error of prediction on the training set,</span>
+<span class="sd">            test_error: error of prediction on the test set</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">training_gaussNB</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">hyperparam</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">training_gaussNB</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+
+    <span class="n">y_pred_test</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_te</span><span class="p">)</span>
+    <span class="n">y_pred_train</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_tr</span><span class="p">)</span>
+
+    <span class="n">train_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_tr</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
+    <span class="n">test_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred_test</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">clf</span><span class="p">,</span> <span class="n">train_error</span><span class="p">,</span> <span class="n">test_error</span></div>
+
+
+<span class="c1">############## Methods for K-nearest Neighbors #################</span>
+<div class="viewcode-block" id="training_kNeigh"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.training_kNeigh">[docs]</a><span class="k">def</span> <span class="nf">training_kNeigh</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Train the classifier for K nearest neighbor</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: neigh: the classifier trained</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">neigh</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">hyperparam</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">neigh</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">neigh</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="kNearestNeigh"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.kNearestNeigh">[docs]</a><span class="k">def</span> <span class="nf">kNearestNeigh</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Method to train and test K nearest neighbor</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param x_te: test data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param y_te: test label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: neigh: classifier that is trained,</span>
+<span class="sd">            train_error: error of prediction on the training set,</span>
+<span class="sd">            test_error: error of prediction on the test set</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">neigh</span> <span class="o">=</span> <span class="n">training_kNeigh</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">hyperparam</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">neigh</span> <span class="o">=</span> <span class="n">training_kNeigh</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+
+    <span class="n">y_pred_test</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_te</span><span class="p">)</span>
+    <span class="n">y_pred_train</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_tr</span><span class="p">)</span>
+
+    <span class="n">train_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_tr</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
+    <span class="n">test_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred_test</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">train_error</span><span class="p">,</span> <span class="n">test_error</span></div>
+
+
+<span class="c1">############## Methods for Decision Tree #################</span>
+<div class="viewcode-block" id="decision_tree"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.decision_tree">[docs]</a><span class="k">def</span> <span class="nf">decision_tree</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">,</span> <span class="n">hyperparam</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Method to train and test decision tree</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param x_te: test data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param y_te: test label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: clf: classifier that is trained,</span>
+<span class="sd">            train_error: error of prediction on the training set,</span>
+<span class="sd">            test_error: error of prediction on the test set</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># For the case without hyperparam to optimize</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">DecisionTreeClassifier</span><span class="p">()</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># If we try to optimize an hyperparam</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">hyperparam</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">min_samples_leaf</span><span class="o">=</span><span class="n">hyperparam</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># Max_depth was optimize with a cross validation</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+
+    <span class="n">y_pred_train</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_tr</span><span class="p">)</span>
+    <span class="n">y_pred_test</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_te</span><span class="p">)</span>
+
+    <span class="n">train_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_tr</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
+    <span class="n">test_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred_test</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">clf</span><span class="p">,</span> <span class="n">train_error</span><span class="p">,</span> <span class="n">test_error</span></div>
+
+
+<span class="c1">############## Methods for Neural Networks #################</span>
+<div class="viewcode-block" id="neural_net"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.neural_net">[docs]</a><span class="k">def</span> <span class="nf">neural_net</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Method to train and test neural net</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param x_te: test data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param y_te: test label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: clf: classifier that is trained,</span>
+<span class="sd">            train_error: error of prediction on the training set,</span>
+<span class="sd">            test_error: error of prediction on the test set</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">MLPClassifier</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s1">&#39;lbfgs&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">hyperparam</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">MLPClassifier</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s1">&#39;lbfgs&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+
+    <span class="n">y_pred_train</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_tr</span><span class="p">)</span>
+    <span class="n">y_pred_test</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_te</span><span class="p">)</span>
+
+    <span class="n">train_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_tr</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
+    <span class="n">test_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred_test</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">clf</span><span class="p">,</span> <span class="n">train_error</span><span class="p">,</span> <span class="n">test_error</span></div>
+
+<span class="c1">################# Method for SVM ####################</span>
+<div class="viewcode-block" id="support_vectorMachine"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.support_vectorMachine">[docs]</a><span class="k">def</span> <span class="nf">support_vectorMachine</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Method to train and test support vector machine</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param x_te: test data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param y_te: test label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: lin_clf: classifier that is trained,</span>
+<span class="sd">            train_error: error of prediction on the training set,</span>
+<span class="sd">            test_error: error of prediction on the test set</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lin_clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">LinearSVC</span><span class="p">()</span> <span class="c1"># Add the hyperparam</span>
+        <span class="n">lin_clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lin_clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">LinearSVC</span><span class="p">()</span>
+        <span class="n">lin_clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+
+    <span class="n">y_pred_train</span> <span class="o">=</span> <span class="n">lin_clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_tr</span><span class="p">)</span>
+    <span class="n">y_pred_test</span> <span class="o">=</span> <span class="n">lin_clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_te</span><span class="p">)</span>
+
+    <span class="n">train_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_tr</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
+    <span class="n">test_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred_test</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lin_clf</span><span class="p">,</span> <span class="n">train_error</span><span class="p">,</span> <span class="n">test_error</span></div>
+
+<span class="c1">############## Methods for quadratic discr. analysis #################</span>
+<div class="viewcode-block" id="training_QDA"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.training_QDA">[docs]</a><span class="k">def</span> <span class="nf">training_QDA</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Train the classifier Naive Bayes (gaussian)</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: clf: the classifier trained</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">QuadraticDiscriminantAnalysis</span><span class="p">(</span><span class="n">reg_param</span><span class="o">=</span><span class="n">hyperparam</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">QuadraticDiscriminantAnalysis</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="discr_analysis"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.discr_analysis">[docs]</a><span class="k">def</span> <span class="nf">discr_analysis</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Method to train and test QDA</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param x_te: test data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param y_te: test label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: clf: classifier that is trained,</span>
+<span class="sd">            train_error: error of prediction on the training set,</span>
+<span class="sd">            test_error: error of prediction on the test set</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">training_QDA</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">hyperparam</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">training_QDA</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+
+    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+
+    <span class="n">y_pred_train</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_tr</span><span class="p">)</span>
+    <span class="n">y_pred_test</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_te</span><span class="p">)</span>
+
+    <span class="n">train_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_tr</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
+    <span class="n">test_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred_test</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">clf</span><span class="p">,</span> <span class="n">train_error</span><span class="p">,</span> <span class="n">test_error</span></div>
+
+<span class="c1">############## Methods for Linear discriminant analysis #################</span>
+<div class="viewcode-block" id="lin_discr_analysis"><a class="viewcode-back" href="../code_documentation.html#classifiers_models.lin_discr_analysis">[docs]</a><span class="k">def</span> <span class="nf">lin_discr_analysis</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">,</span> <span class="n">hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Method to train and test LDA</span>
+
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param x_te: test data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param y_te: test label</span>
+<span class="sd">    :param hyperparam: if there are some (their values) (default = None)</span>
+<span class="sd">    :return: clf: classifier that is trained,</span>
+<span class="sd">            train_error: error of prediction on the training set,</span>
+<span class="sd">            test_error: error of prediction on the test set</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">hyperparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">LinearDiscriminantAnalysis</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s1">&#39;lsqr&#39;</span><span class="p">,</span><span class="n">shrinkage</span><span class="o">=</span><span class="n">hyperparam</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">LinearDiscriminantAnalysis</span><span class="p">()</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span>
+
+    <span class="n">y_pred_train</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_tr</span><span class="p">)</span>
+    <span class="n">y_pred_test</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_te</span><span class="p">)</span>
+
+    <span class="n">train_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_tr</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
+    <span class="n">test_error</span> <span class="o">=</span> <span class="n">prediction_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred_test</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">clf</span><span class="p">,</span> <span class="n">train_error</span><span class="p">,</span> <span class="n">test_error</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Project_2 Recommender System</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_structure.html">Structure of the code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation.html">Code Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Dubois Etienne, Froelicher Stefan, Perret Ivan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

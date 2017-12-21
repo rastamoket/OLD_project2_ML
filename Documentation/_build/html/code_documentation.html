@@ -1,0 +1,827 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Code Documentation &#8212; Project_2 Recommender System 2.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Structure of the code" href="code_structure.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="code-documentation">
+<h1>Code Documentation<a class="headerlink" href="#code-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-helpers">
+<span id="helpers"></span><h2>Helpers<a class="headerlink" href="#module-helpers" title="Permalink to this headline">¶</a></h2>
+<p>some helper functions.</p>
+<dl class="function">
+<dt id="helpers.build_index_groups">
+<code class="descclassname">helpers.</code><code class="descname">build_index_groups</code><span class="sig-paren">(</span><em>train</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#build_index_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.build_index_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>build groups for nnz rows and cols</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>train</strong> – train set that need to be split several fold</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">nz_train, nz_row_colindices, nz_col_rowindices</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.calculate_mse">
+<code class="descclassname">helpers.</code><code class="descname">calculate_mse</code><span class="sig-paren">(</span><em>real_label</em>, <em>prediction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#calculate_mse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.calculate_mse" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate MSE</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>real_label</strong> – the correct label</li>
+<li><strong>prediction</strong> – the prediction of the label</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the Mean Squared Error</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.create_csv_submission">
+<code class="descclassname">helpers.</code><code class="descname">create_csv_submission</code><span class="sig-paren">(</span><em>row_users</em>, <em>col_movies</em>, <em>estim</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#create_csv_submission"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.create_csv_submission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an output file in csv format for submission to kaggle</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>row_users</strong> – the indices of the users</li>
+<li><strong>col_movies</strong> – the indices of the movies</li>
+<li><strong>estim</strong> – the estimated ratings</li>
+<li><strong>name</strong> – string name of .csv output file to be created</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Nothing, it creates a csv file</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.get_label_predictions">
+<code class="descclassname">helpers.</code><code class="descname">get_label_predictions</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#get_label_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.get_label_predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get the label (real ratings) and the predictions from the data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> – dataframe, columns: real ratings + each model’s predictions, rows: userID and movieID</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">data_predictions_np: all the predicitions from each algos (as numpy array), data_label_np: label (real ratings) (as numpy array)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.group_by">
+<code class="descclassname">helpers.</code><code class="descname">group_by</code><span class="sig-paren">(</span><em>data</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#group_by"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.group_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>group list of list by a specific index</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> – what we want to sort</li>
+<li><strong>index</strong> – index</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">groupby_data: data sorted</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.load_data">
+<code class="descclassname">helpers.</code><code class="descname">load_data</code><span class="sig-paren">(</span><em>path_dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data in text format, one rating per line, as in the kaggle competition</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path_dataset</strong> – path of the file that contains the data (.csv)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the pre-processed data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.load_data_old">
+<code class="descclassname">helpers.</code><code class="descname">load_data_old</code><span class="sig-paren">(</span><em>dataSetCSVfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#load_data_old"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.load_data_old" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data and convert it to the metrics system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dataSetCSVfile</strong> – path of the CSV file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">rowCol_samples: position (r##_c##), data: ratings</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.preprocess_data">
+<code class="descclassname">helpers.</code><code class="descname">preprocess_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#preprocess_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.preprocess_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>preprocessing the text data, conversion to numerical array format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> – original data set</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ratings: pre-processed data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.read_txt">
+<code class="descclassname">helpers.</code><code class="descname">read_txt</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#read_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.read_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>to read txt</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> – path of the file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">what is read</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helpers.split_predictions_data">
+<code class="descclassname">helpers.</code><code class="descname">split_predictions_data</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>ratio</em>, <em>seed=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helpers.html#split_predictions_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helpers.split_predictions_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>split the dataset based on the split ratio</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> – data set</li>
+<li><strong>y</strong> – label</li>
+<li><strong>ratio</strong> – ratio of data that will be in the training set</li>
+<li><strong>seed</strong> – to randomize</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">x_tr: training data, x_te: test data, y_tr: training label, y_te: test label</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pre_processing">
+<span id="pre-processing"></span><h2>Pre-processing<a class="headerlink" href="#module-pre_processing" title="Permalink to this headline">¶</a></h2>
+<p>Some functions to do the pre-processing</p>
+<dl class="function">
+<dt id="pre_processing.formating_data_surprise">
+<code class="descclassname">pre_processing.</code><code class="descname">formating_data_surprise</code><span class="sig-paren">(</span><em>ratings</em>, <em>dataF_return=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pre_processing.html#formating_data_surprise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pre_processing.formating_data_surprise" title="Permalink to this definition">¶</a></dt>
+<dd><p>To put the data in the format needed to use “surprise”</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ratings</strong> – the ratings (sparse matrix)</li>
+<li><strong>dataF_return</strong> – to choose if we want to return or not the dataframe (default = False)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dataF: dataframe with movies ID, ratings, users ID (only returned if dataF_return = True),
+Dataset.load_from_df: this is a dataset for surprise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pre_processing.split_data">
+<code class="descclassname">pre_processing.</code><code class="descname">split_data</code><span class="sig-paren">(</span><em>ratings</em>, <em>prob_test=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pre_processing.html#split_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pre_processing.split_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>To split the data set in training and test</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ratings</strong> – the matrix of ratings that we want to split</li>
+<li><strong>prob_test</strong> – the probability to put in the test set (default = 0.1)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">train: training matrix (90% of the ratings for each column),
+test: test matrix (10% of the ratings for each column)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pre_processing.valid_ratings">
+<code class="descclassname">pre_processing.</code><code class="descname">valid_ratings</code><span class="sig-paren">(</span><em>ratings</em>, <em>num_items_per_user</em>, <em>num_users_per_item</em>, <em>min_num_ratings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pre_processing.html#valid_ratings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pre_processing.valid_ratings" title="Permalink to this definition">¶</a></dt>
+<dd><p>To select only the users and items that give “enough” ratings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ratings</strong> – the original values</li>
+<li><strong>num_items_per_user</strong> – the number of movies rated per user</li>
+<li><strong>num_users_per_item</strong> – the number of users that had rate the movie</li>
+<li><strong>min_num_ratings</strong> – number of minimal ratings we want for users and movies</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">valid_ratings: only the ratings for the users and movies that has at least min_num_ratings</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-play_with_data"></span><p>some functions to better understand the data</p>
+</div>
+<div class="section" id="module-classifiers_models">
+<span id="algorithms"></span><h2>Algorithms<a class="headerlink" href="#module-classifiers_models" title="Permalink to this headline">¶</a></h2>
+<p>Different classifiers</p>
+<dl class="function">
+<dt id="classifiers_models.decision_tree">
+<code class="descclassname">classifiers_models.</code><code class="descname">decision_tree</code><span class="sig-paren">(</span><em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#decision_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.decision_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to train and test decision tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>x_te</strong> – test data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>y_te</strong> – test label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clf: classifier that is trained,
+train_error: error of prediction on the training set,
+test_error: error of prediction on the test set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.discr_analysis">
+<code class="descclassname">classifiers_models.</code><code class="descname">discr_analysis</code><span class="sig-paren">(</span><em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#discr_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.discr_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to train and test QDA</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>x_te</strong> – test data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>y_te</strong> – test label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clf: classifier that is trained,
+train_error: error of prediction on the training set,
+test_error: error of prediction on the test set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.kNearestNeigh">
+<code class="descclassname">classifiers_models.</code><code class="descname">kNearestNeigh</code><span class="sig-paren">(</span><em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#kNearestNeigh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.kNearestNeigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to train and test K nearest neighbor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>x_te</strong> – test data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>y_te</strong> – test label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">neigh: classifier that is trained,
+train_error: error of prediction on the training set,
+test_error: error of prediction on the test set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.lin_discr_analysis">
+<code class="descclassname">classifiers_models.</code><code class="descname">lin_discr_analysis</code><span class="sig-paren">(</span><em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#lin_discr_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.lin_discr_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to train and test LDA</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>x_te</strong> – test data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>y_te</strong> – test label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clf: classifier that is trained,
+train_error: error of prediction on the training set,
+test_error: error of prediction on the test set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.naive_bayes">
+<code class="descclassname">classifiers_models.</code><code class="descname">naive_bayes</code><span class="sig-paren">(</span><em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#naive_bayes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.naive_bayes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to train and test naive bayes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>x_te</strong> – test data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>y_te</strong> – test label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clf: classifier that is trained,
+train_error: error of prediction on the training set,
+test_error: error of prediction on the test set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.neural_net">
+<code class="descclassname">classifiers_models.</code><code class="descname">neural_net</code><span class="sig-paren">(</span><em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#neural_net"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.neural_net" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to train and test neural net</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>x_te</strong> – test data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>y_te</strong> – test label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clf: classifier that is trained,
+train_error: error of prediction on the training set,
+test_error: error of prediction on the test set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.prediction_error">
+<code class="descclassname">classifiers_models.</code><code class="descname">prediction_error</code><span class="sig-paren">(</span><em>lab_real</em>, <em>lab_pred</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#prediction_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.prediction_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>To compute the error of prediction. This is done by comparison of the prediction and the real labels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lab_real</strong> – real label</li>
+<li><strong>lab_pred</strong> – prediction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">prediction error (number of wrong classification / number total of label)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.support_vectorMachine">
+<code class="descclassname">classifiers_models.</code><code class="descname">support_vectorMachine</code><span class="sig-paren">(</span><em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#support_vectorMachine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.support_vectorMachine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to train and test support vector machine</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>x_te</strong> – test data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>y_te</strong> – test label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">lin_clf: classifier that is trained,
+train_error: error of prediction on the training set,
+test_error: error of prediction on the test set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.training_QDA">
+<code class="descclassname">classifiers_models.</code><code class="descname">training_QDA</code><span class="sig-paren">(</span><em>x_tr</em>, <em>y_tr</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#training_QDA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.training_QDA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier Naive Bayes (gaussian)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clf: the classifier trained</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.training_gaussNB">
+<code class="descclassname">classifiers_models.</code><code class="descname">training_gaussNB</code><span class="sig-paren">(</span><em>x_tr</em>, <em>y_tr</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#training_gaussNB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.training_gaussNB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier Naive Bayes (gaussian)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clf: the classifier trained</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="classifiers_models.training_kNeigh">
+<code class="descclassname">classifiers_models.</code><code class="descname">training_kNeigh</code><span class="sig-paren">(</span><em>x_tr</em>, <em>y_tr</em>, <em>hyperparam=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classifiers_models.html#training_kNeigh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#classifiers_models.training_kNeigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier for K nearest neighbor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>hyperparam</strong> – if there are some (their values) (default = None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">neigh: the classifier trained</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-apply_classifiers"></span><p>Functions to apply classifiers on predictions</p>
+<dl class="function">
+<dt id="apply_classifiers.apply_classifier">
+<code class="descclassname">apply_classifiers.</code><code class="descname">apply_classifier</code><span class="sig-paren">(</span><em>data</em>, <em>classifiers_method</em>, <em>classifiers_hyperparam=None</em>, <em>ratio=0.85</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apply_classifiers.html#apply_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#apply_classifiers.apply_classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>To apply the classifier on the predictions made by all the algos we used and find the best classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> – dataframe, columns: real ratings + each model’s predictions, rows: userID and movieID</li>
+<li><strong>classifiers_method</strong> – method of the classifier we want to use</li>
+<li><strong>classifiers_hyperparam</strong> – if there are some, otherwise None</li>
+<li><strong>ratio</strong> – for the splitting in training and test set (default = 0.85)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">best_clf: the classifier, best_test_error: the lowest test error (associates with the best_clf)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="apply_classifiers.try_allClassifiers">
+<code class="descclassname">apply_classifiers.</code><code class="descname">try_allClassifiers</code><span class="sig-paren">(</span><em>classifiers_method</em>, <em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apply_classifiers.html#try_allClassifiers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#apply_classifiers.try_allClassifiers" title="Permalink to this definition">¶</a></dt>
+<dd><p>To try all the classifiers on the same data (Train and Test) in order to find the lowest test error</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>classifiers_method</strong> – contain the methods for each classifiers</li>
+<li><strong>x_tr</strong> – data for training</li>
+<li><strong>x_te</strong> – data for test</li>
+<li><strong>y_tr</strong> – label for training</li>
+<li><strong>y_te</strong> – label for test</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-regressions_models"></span><p>Different regressors</p>
+<dl class="function">
+<dt id="regressions_models.lin_regressors">
+<code class="descclassname">regressions_models.</code><code class="descname">lin_regressors</code><span class="sig-paren">(</span><em>data</em>, <em>regressions_method</em>, <em>regressor_hyperparam=None</em>, <em>ratio=0.85</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regressions_models.html#lin_regressors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regressions_models.lin_regressors" title="Permalink to this definition">¶</a></dt>
+<dd><p>To apply every linear regressors on the predictions from all the algorithms</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> – predictions from every algorithms</li>
+<li><strong>regressions_method</strong> – methods to apply regressions, these methods are from sklearn (linear_model.method)</li>
+<li><strong>regressor_hyperparam</strong> – if there are some, otherwise = None</li>
+<li><strong>ratio</strong> – for the splitting of training and test set (default = 0.85)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">best_lin_regressors = the best regressors based on RMSE, best_rmse = rmse associated with the best regressor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="regressions_models.optimization_regressor">
+<code class="descclassname">regressions_models.</code><code class="descname">optimization_regressor</code><span class="sig-paren">(</span><em>data</em>, <em>regressor</em>, <em>hyperparameters</em>, <em>ratio=0.85</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regressions_models.html#optimization_regressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regressions_models.optimization_regressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>To optimize the hyperparameters of the regressor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> – predictions from every algorithms</li>
+<li><strong>regressor</strong> – method to apply regression</li>
+<li><strong>hyperparameters</strong> – the different possible values of certain parameter of the regressor</li>
+<li><strong>ratio</strong> – for the splitting of training and test set (default = 0.85)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">regressor_optimized: contain the regressor with all the optimization information</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="regressions_models.try_linRegressors">
+<code class="descclassname">regressions_models.</code><code class="descname">try_linRegressors</code><span class="sig-paren">(</span><em>regressions_method</em>, <em>x_tr</em>, <em>x_te</em>, <em>y_tr</em>, <em>y_te</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regressions_models.html#try_linRegressors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regressions_models.try_linRegressors" title="Permalink to this definition">¶</a></dt>
+<dd><p>To try all the regressors and select the one that gives the smallest RMSE</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>regressions_method</strong> – methods to apply regressions, these methods are from sklearn (linear_model.method)</li>
+<li><strong>x_tr</strong> – training data</li>
+<li><strong>x_te</strong> – test data</li>
+<li><strong>y_tr</strong> – training label</li>
+<li><strong>y_te</strong> – test label</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">best_reg (the best regressor), best_rmse (the rmse associated with the best regressor)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-trainings_submissions"></span><dl class="function">
+<dt id="trainings_submissions.first_train">
+<code class="descclassname">trainings_submissions.</code><code class="descname">first_train</code><span class="sig-paren">(</span><em>ratings</em>, <em>algorithm</em>, <em>test=[]</em>, <em>submit=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trainings_submissions.html#first_train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trainings_submissions.first_train" title="Permalink to this definition">¶</a></dt>
+<dd><p>to apply the differents algorithms from surprise on the ratings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ratings</strong> – original data, training data</li>
+<li><strong>algorithm</strong> – list of algorithms we want to apply on the data</li>
+<li><strong>test</strong> – test set (default = empty)</li>
+<li><strong>submit</strong> – to choose if it is only for training or also to apply on the test set (default = False)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">prediction_df or prediction_test_df: contain the prediction and the label, algos_trained: list of the algo once they are trained</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trainings_submissions.second_train_df">
+<code class="descclassname">trainings_submissions.</code><code class="descname">second_train_df</code><span class="sig-paren">(</span><em>df</em>, <em>list_algo_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trainings_submissions.html#second_train_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trainings_submissions.second_train_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>to re-arrange the dataframe after the method “firs_train”</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> – dataframe that contain movies and users ID, label and all the predictions</li>
+<li><strong>list_algo_name</strong> – list of the name of the algorithms we used</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">train_df: contain label and the predictions, moviesID_usersID_df: contain the users and movies ID</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-run">
+<span id="run"></span><h2>Run<a class="headerlink" href="#module-run" title="Permalink to this headline">¶</a></h2>
+<p>Run everything to obtain our best prediction</p>
+<dl class="function">
+<dt id="run.run">
+<code class="descclassname">run.</code><code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/run.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#run.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>To run everything to obtain the best prediction</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Nothing, it creates a .CSV file that is ready for the online submission</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Project_2 Recommender System</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_structure.html">Structure of the code</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Code Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-helpers">Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pre_processing">Pre-processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-classifiers_models">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-run">Run</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="code_structure.html" title="previous chapter">Structure of the code</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Dubois Etienne, Froelicher Stefan, Perret Ivan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/code_documentation.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

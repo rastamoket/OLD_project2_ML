@@ -13,6 +13,7 @@ from sklearn.naive_bayes import GaussianNB # Naive Bayes, Gaussian
 from sklearn.naive_bayes import MultinomialNB # Naive Bayes, multinomial
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis # Linear Discriminant Analysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis # Quadratic Discriminant Analysis
+from sklearn.metrics import mean_squared_error
 
 def prediction_error(lab_real, lab_pred):
     ''' To compute the error of prediction. This is done by comparison of the prediction and the real labels
@@ -49,7 +50,8 @@ def naive_bayes(x_tr, x_te, y_tr, y_te, hyperparam = None):
     :param hyperparam: if there are some (their values) (default = None)
     :return: clf: classifier that is trained,
             train_error: error of prediction on the training set,
-            test_error: error of prediction on the test set
+            test_error: error of prediction on the test set,
+            rmse: root mean squared error with prediction and real ratings
     '''
 
     if hyperparam is not None:
@@ -63,7 +65,10 @@ def naive_bayes(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return clf, train_error, test_error
+    #******* Compute RMSE *********
+    rmse = mean_squared_error(y_te, y_pred_test)
+
+    return clf, train_error, test_error, rmse
 
 
 ############## Methods for K-nearest Neighbors #################
@@ -92,7 +97,8 @@ def kNearestNeigh(x_tr, x_te, y_tr, y_te, hyperparam = None):
     :param hyperparam: if there are some (their values) (default = None)
     :return: neigh: classifier that is trained,
             train_error: error of prediction on the training set,
-            test_error: error of prediction on the test set
+            test_error: error of prediction on the test set,
+            rmse: root mean squared error with prediction and real ratings
     '''
 
     if hyperparam is not None:
@@ -106,7 +112,10 @@ def kNearestNeigh(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return neigh, train_error, test_error
+    #******* Compute RMSE *********
+    rmse = mean_squared_error(y_te, y_pred_test)
+
+    return neigh, train_error, test_error, rmse
 
 
 ############## Methods for Decision Tree #################
@@ -120,7 +129,8 @@ def decision_tree(x_tr, x_te, y_tr, y_te, hyperparam=None):
     :param hyperparam: if there are some (their values) (default = None)
     :return: clf: classifier that is trained,
             train_error: error of prediction on the training set,
-            test_error: error of prediction on the test set
+            test_error: error of prediction on the test set,
+            rmse: root mean squared error with prediction and real ratings
     '''
 
     if hyperparam == None: # For the case without hyperparam to optimize
@@ -136,7 +146,10 @@ def decision_tree(x_tr, x_te, y_tr, y_te, hyperparam=None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return clf, train_error, test_error
+    #******* Compute RMSE *********
+    rmse = mean_squared_error(y_te, y_pred_test)
+
+    return clf, train_error, test_error, rmse
 
 
 ############## Methods for Neural Networks #################
@@ -150,7 +163,8 @@ def neural_net(x_tr, x_te, y_tr, y_te, hyperparam = None):
     :param hyperparam: if there are some (their values) (default = None)
     :return: clf: classifier that is trained,
             train_error: error of prediction on the training set,
-            test_error: error of prediction on the test set
+            test_error: error of prediction on the test set,
+            rmse: root mean squared error with prediction and real ratings
     '''
 
     if hyperparam is not None:
@@ -166,7 +180,10 @@ def neural_net(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return clf, train_error, test_error
+    #******* Compute RMSE *********
+    rmse = mean_squared_error(y_te, y_pred_test)
+
+    return clf, train_error, test_error, rmse
 
 ################# Method for SVM ####################
 def support_vectorMachine(x_tr, x_te, y_tr, y_te, hyperparam = None):
@@ -179,7 +196,8 @@ def support_vectorMachine(x_tr, x_te, y_tr, y_te, hyperparam = None):
     :param hyperparam: if there are some (their values) (default = None)
     :return: lin_clf: classifier that is trained,
             train_error: error of prediction on the training set,
-            test_error: error of prediction on the test set
+            test_error: error of prediction on the test set,
+            rmse: root mean squared error with prediction and real ratings
     '''
 
     if hyperparam is not None:
@@ -195,7 +213,10 @@ def support_vectorMachine(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return lin_clf, train_error, test_error
+    #******* Compute RMSE *********
+    rmse = mean_squared_error(y_te, y_pred_test)
+
+    return lin_clf, train_error, test_error, rmse
 
 ############## Methods for quadratic discr. analysis #################
 def training_QDA(x_tr, y_tr, hyperparam = None):
@@ -223,7 +244,8 @@ def discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
     :param hyperparam: if there are some (their values) (default = None)
     :return: clf: classifier that is trained,
             train_error: error of prediction on the training set,
-            test_error: error of prediction on the test set
+            test_error: error of prediction on the test set,
+            rmse: root mean squared error with prediction and real ratings
     '''
 
     if hyperparam is not None:
@@ -239,7 +261,10 @@ def discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return clf, train_error, test_error
+    #******* Compute RMSE *********
+    rmse = mean_squared_error(y_te, y_pred_test)
+
+    return clf, train_error, test_error, rmse
 
 ############## Methods for Linear discriminant analysis #################
 def lin_discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
@@ -252,7 +277,8 @@ def lin_discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
     :param hyperparam: if there are some (their values) (default = None)
     :return: clf: classifier that is trained,
             train_error: error of prediction on the training set,
-            test_error: error of prediction on the test set
+            test_error: error of prediction on the test set,
+            rmse: root mean squared error with prediction and real ratings
     '''
 
     if hyperparam is not None:
@@ -268,4 +294,7 @@ def lin_discr_analysis(x_tr, x_te, y_tr, y_te, hyperparam = None):
     train_error = prediction_error(y_tr, y_pred_train)
     test_error = prediction_error(y_te, y_pred_test)
 
-    return clf, train_error, test_error
+    #******* Compute RMSE *********
+    rmse = mean_squared_error(y_te, y_pred_test)
+
+    return clf, train_error, test_error, rmse

@@ -1,0 +1,40 @@
+Code Documentation
+============================
+
+Helpers
+----------------------------
+
+.. automodule:: helpers
+   :members:
+
+
+Pre-processing
+----------------------------
+
+.. automodule:: pre_processing
+   :members:
+.. automodule:: play_with_data
+
+
+Algorithms
+----------------------------
+
+.. automodule:: classifiers_models
+   :members:
+   
+.. automodule:: apply_classifiers
+   :members:
+
+.. automodule:: regressions_models
+   :members:
+
+.. automodule:: trainings_submissions
+   :members:
+
+
+Run
+----------------------------
+
+.. automodule:: run
+   :members:
+

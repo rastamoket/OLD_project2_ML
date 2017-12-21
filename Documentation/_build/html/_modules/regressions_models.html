@@ -1,0 +1,186 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>regressions_models &#8212; Project_2 Recommender System 2.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for regressions_models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot; Different regressors &quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">linear_model</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">mean_squared_error</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">GridSearchCV</span>
+<span class="kn">from</span> <span class="nn">helpers</span> <span class="k">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="try_linRegressors"><a class="viewcode-back" href="../code_documentation.html#regressions_models.try_linRegressors">[docs]</a><span class="k">def</span> <span class="nf">try_linRegressors</span><span class="p">(</span><span class="n">regressions_method</span><span class="p">,</span> <span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; To try all the regressors and select the one that gives the smallest RMSE</span>
+
+<span class="sd">    :param regressions_method: methods to apply regressions, these methods are from sklearn (linear_model.method)</span>
+<span class="sd">    :param x_tr: training data</span>
+<span class="sd">    :param x_te: test data</span>
+<span class="sd">    :param y_tr: training label</span>
+<span class="sd">    :param y_te: test label</span>
+<span class="sd">    :return: best_reg (the best regressor), best_rmse (the rmse associated with the best regressor)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">best_rmse</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Put very large like that it will be update to the RMSE find with one of the method</span>
+    <span class="c1">#******* select the best regressor ******</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">regressor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">regressions_method</span><span class="p">):</span> <span class="c1"># Loop over all the regressors</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;regression loop:</span><span class="se">\t</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">regressions_method</span><span class="p">)))</span>
+        <span class="n">reg</span> <span class="o">=</span> <span class="n">regressor</span> 
+        <span class="n">reg</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_tr</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">)</span> <span class="c1"># Training of the regressor</span>
+        <span class="n">pred</span> <span class="o">=</span> <span class="n">x_te</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">reg</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span> <span class="c1"># Compute the prediction by multiply each column (feature) by the coef find in the training of the reg</span>
+
+        <span class="n">rmse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span> <span class="c1"># Compute rmse</span>
+        <span class="k">if</span> <span class="n">rmse</span> <span class="o">&lt;</span> <span class="n">best_rmse</span><span class="p">:</span> <span class="c1"># Condition that allow us to choose the best regressors by taking the smallest rmse</span>
+            <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">rmse</span>
+            <span class="n">best_reg</span> <span class="o">=</span> <span class="n">reg</span>
+
+    <span class="k">return</span> <span class="n">best_reg</span><span class="p">,</span> <span class="n">best_rmse</span></div>
+
+<div class="viewcode-block" id="lin_regressors"><a class="viewcode-back" href="../code_documentation.html#regressions_models.lin_regressors">[docs]</a><span class="k">def</span> <span class="nf">lin_regressors</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">regressions_method</span><span class="p">,</span> <span class="n">regressor_hyperparam</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ratio</span> <span class="o">=</span> <span class="mf">0.85</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; To apply every linear regressors on the predictions from all the algorithms</span>
+
+<span class="sd">    :param data: predictions from every algorithms</span>
+<span class="sd">    :param regressions_method: methods to apply regressions, these methods are from sklearn (linear_model.method)</span>
+<span class="sd">    :param regressor_hyperparam: if there are some, otherwise = None</span>
+<span class="sd">    :param ratio: for the splitting of training and test set (default = 0.85)</span>
+<span class="sd">    :return: best_lin_regressors = the best regressors based on RMSE, best_rmse = rmse associated with the best regressor</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1">########## Splitting the data in training and test set #############</span>
+    <span class="c1">#******** split the data in predictions and label ******</span>
+    <span class="n">data_predictions_np</span><span class="p">,</span> <span class="n">data_label_np</span> <span class="o">=</span> <span class="n">get_label_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1">#******** Split in training and test set ********</span>
+    <span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span> <span class="o">=</span> <span class="n">split_predictions_data</span><span class="p">(</span><span class="n">data_predictions_np</span><span class="p">,</span> <span class="n">data_label_np</span><span class="p">,</span> <span class="n">ratio</span><span class="p">)</span> <span class="c1"># call the method to split the predictions</span>
+
+    <span class="c1">########### Try all the linear regressors and select the best one ######</span>
+    <span class="n">best_lin_regressor</span><span class="p">,</span> <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">try_linRegressors</span><span class="p">(</span><span class="n">regressions_method</span><span class="p">,</span> <span class="n">x_tr</span><span class="p">,</span> <span class="n">x_te</span><span class="p">,</span> <span class="n">y_tr</span><span class="p">,</span> <span class="n">y_te</span><span class="p">)</span>
+
+
+    <span class="k">return</span> <span class="n">best_lin_regressor</span><span class="p">,</span> <span class="n">best_rmse</span></div>
+
+<div class="viewcode-block" id="optimization_regressor"><a class="viewcode-back" href="../code_documentation.html#regressions_models.optimization_regressor">[docs]</a><span class="k">def</span> <span class="nf">optimization_regressor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">regressor</span><span class="p">,</span> <span class="n">hyperparameters</span><span class="p">,</span> <span class="n">ratio</span> <span class="o">=</span> <span class="mf">0.85</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; To optimize the hyperparameters of the regressor</span>
+
+<span class="sd">    :param data: predictions from every algorithms</span>
+<span class="sd">    :param regressor: method to apply regression</span>
+<span class="sd">    :param hyperparameters: the different possible values of certain parameter of the regressor</span>
+<span class="sd">    :param ratio: for the splitting of training and test set (default = 0.85)</span>
+<span class="sd">    :return: regressor_optimized: contain the regressor with all the optimization information</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1">#******** split the data in predictions and label ******</span>
+    <span class="n">data_predictions_np</span><span class="p">,</span> <span class="n">data_label_np</span> <span class="o">=</span> <span class="n">get_label_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1">#******** Split in training and test set ********    </span>
+    <span class="c1">#x_tr, x_te, y_tr, y_te = split_predictions_data(data_predictions_np, data_label_np, ratio) # call the method to split the predictions</span>
+    
+    <span class="c1">#******** GridSearchCV ********************</span>
+    <span class="n">regressor_optimized</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">hyperparameters</span><span class="p">)</span>
+    <span class="n">regressor_optimized</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data_predictions_np</span><span class="p">,</span> <span class="n">data_label_np</span><span class="p">)</span>
+    
+    
+    <span class="k">return</span> <span class="n">regressor_optimized</span></div>
+
+
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Project_2 Recommender System</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_structure.html">Structure of the code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation.html">Code Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Dubois Etienne, Froelicher Stefan, Perret Ivan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

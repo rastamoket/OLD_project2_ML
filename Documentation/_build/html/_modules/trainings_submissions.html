@@ -1,0 +1,193 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>trainings_submissions &#8212; Project_2 Recommender System 2.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for trainings_submissions</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">classifiers_models</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pre_processing</span> <span class="k">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="first_train"><a class="viewcode-back" href="../code_documentation.html#trainings_submissions.first_train">[docs]</a><span class="k">def</span> <span class="nf">first_train</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="p">[],</span><span class="n">submit</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; to apply the differents algorithms from surprise on the ratings</span>
+
+<span class="sd">    :param ratings: original data, training data</span>
+<span class="sd">    :param algorithm: list of algorithms we want to apply on the data</span>
+<span class="sd">    :param test: test set (default = empty)</span>
+<span class="sd">    :param submit: to choose if it is only for training or also to apply on the test set (default = False)</span>
+<span class="sd">    :return: prediction_df or prediction_test_df: contain the prediction and the label, algos_trained: list of the algo once they are trained</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">submit</span><span class="p">:</span>
+        <span class="c1">########### Define: algo, dataset (trainset ##############</span>
+        <span class="n">dataF_train</span><span class="p">,</span> <span class="n">ratings_train</span> <span class="o">=</span> <span class="n">formating_data_surprise</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="c1"># Create the Dataset for surprise (training set)</span>
+
+        <span class="n">train_set</span> <span class="o">=</span> <span class="n">ratings_train</span><span class="o">.</span><span class="n">build_full_trainset</span><span class="p">()</span> <span class="c1"># Build trainset</span>
+        <span class="n">trainset_pred</span> <span class="o">=</span> <span class="n">train_set</span><span class="o">.</span><span class="n">build_testset</span><span class="p">()</span> <span class="c1"># Build iterable object in order to test </span>
+
+        <span class="c1"># C&#39;est notre test set donc utiliser plus tard</span>
+        <span class="c1">#ratings_test = formating_data_surprise(validation_ratings)</span>
+        <span class="c1">#validation_set = ratings_test.build_full_trainset()</span>
+
+        <span class="n">prediction_df</span> <span class="o">=</span> <span class="n">dataF_train</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="n">algos_trained</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">algo</span> <span class="ow">in</span> <span class="nb">enumerate</span> <span class="p">(</span><span class="n">algorithm</span><span class="p">):</span>
+
+            <span class="n">algo</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">train_set</span><span class="p">)</span> <span class="c1"># Training of the algo</span>
+            <span class="n">algos_trained</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">algo</span><span class="p">)</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">algo</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">trainset_pred</span><span class="p">)</span> <span class="c1"># Make the prediction</span>
+
+            <span class="c1">########## Creation of the lists: row_users, col_movies, estim ########</span>
+            <span class="n">estim</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># initialization of the list estim</span>
+
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pred</span><span class="p">:</span> <span class="c1"># To loop over the prediction done by the algo on the test set</span>
+                <span class="n">estim</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">est</span><span class="p">)</span> <span class="c1"># fill this list with the ratings</span>
+
+            <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;prediction&#39;</span> <span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">estim</span><span class="p">)}</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">prediction_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">prediction_df</span><span class="p">,</span><span class="n">temp</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  
+
+        <span class="k">return</span> <span class="n">prediction_df</span><span class="p">,</span> <span class="n">algos_trained</span>
+
+
+    <span class="k">else</span><span class="p">:</span>
+        
+        <span class="c1">########### Define: algo, dataset (trainset ##############</span>
+        <span class="n">data_train_df</span> <span class="p">,</span><span class="n">ratings_</span> <span class="o">=</span> <span class="n">formating_data_surprise</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="c1"># Create the Dataset for surprise (training set)</span>
+        <span class="n">trainset</span> <span class="o">=</span> <span class="n">ratings_</span><span class="o">.</span><span class="n">build_full_trainset</span><span class="p">()</span>
+        
+        <span class="n">data_test</span> <span class="p">,</span> <span class="n">ratings_test</span> <span class="o">=</span> <span class="n">formating_data_surprise</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="c1"># Create the Dataset for surprise (training set)</span>
+        <span class="n">test_trainset</span> <span class="o">=</span> <span class="n">ratings_test</span><span class="o">.</span><span class="n">build_full_trainset</span><span class="p">()</span>
+        <span class="n">testset</span> <span class="o">=</span> <span class="n">test_trainset</span><span class="o">.</span><span class="n">build_testset</span><span class="p">()</span>
+        
+        <span class="n">prediction_test_df</span> <span class="o">=</span> <span class="n">data_test</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">algo</span> <span class="ow">in</span> <span class="nb">enumerate</span> <span class="p">(</span><span class="n">algorithm</span><span class="p">):</span>
+            <span class="n">algo</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">trainset</span><span class="p">)</span> <span class="c1"># Training of the algo</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">algo</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">testset</span><span class="p">)</span> <span class="c1"># Make the prediction</span>
+
+            <span class="c1">########## Creation of the lists: row_users, col_movies, estim ########</span>
+            <span class="n">estim</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># initialization of the list estim</span>
+
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pred</span><span class="p">:</span> <span class="c1"># To loop over the prediction done by the algo on the test set</span>
+                <span class="n">estim</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">est</span><span class="p">)</span> <span class="c1"># fill this list with the ratings</span>
+    
+            <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;prediction&#39;</span> <span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">estim</span><span class="p">)}</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">prediction_test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">prediction_test_df</span><span class="p">,</span><span class="n">temp</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">prediction_test_df</span></div>
+
+<div class="viewcode-block" id="second_train_df"><a class="viewcode-back" href="../code_documentation.html#trainings_submissions.second_train_df">[docs]</a><span class="k">def</span> <span class="nf">second_train_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">list_algo_name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; to re-arrange the dataframe after the method &quot;firs_train&quot;</span>
+
+<span class="sd">    :param df: dataframe that contain movies and users ID, label and all the predictions</span>
+<span class="sd">    :param list_algo_name: list of the name of the algorithms we used</span>
+<span class="sd">    :return: train_df: contain label and the predictions, moviesID_usersID_df: contain the users and movies ID</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Label&#39;</span><span class="p">]</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">columns</span><span class="p">,</span> <span class="n">list_algo_name</span><span class="p">],[])</span>
+    <span class="n">moviesID_userID_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;movies ID&#39;</span><span class="p">,</span><span class="s1">&#39;users ID&#39;</span><span class="p">]]</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># Copy </span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">columns</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># In order to keep only the real ratings and then the predictions for all algos</span>
+    <span class="n">train_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
+    
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">moviesID_userID_df</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Project_2 Recommender System</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_structure.html">Structure of the code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation.html">Code Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Dubois Etienne, Froelicher Stefan, Perret Ivan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
