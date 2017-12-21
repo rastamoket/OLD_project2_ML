@@ -31,7 +31,8 @@ def try_linRegressors(regressions_method, data, label):
             print('\tFold {}'.format(count_fold))
 
             reg.fit(data[train,:], label[train]) # Training of the regressor
-            pred = data[test,:].dot(reg.coef_) # Compute the prediction by multiply each column (feature) by the coef find in the training of the reg
+            #pred = data[test,:].dot(reg.coef_) # Compute the prediction by multiply each column (feature) by the coef find in the training of the reg
+            pred = reg.predict(data[test,:])
             rmse += np.sqrt(mean_squared_error(label[test], pred)) # Compute rmse
 
         rmse = rmse / n_fold # Compute the mean of the RMSE over the folds

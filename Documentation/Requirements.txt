@@ -4,22 +4,50 @@ Requirements
 Install Libraries
 -------------------
 
-First, if you don't have the libraries: Suprise (scikit-surprise) and future, you need to install them. We propose you a script (intall_libraries.sh) in order to run the following commands:
+First, if you don't have the libraries: Suprise (scikit-surprise), future and xgboost, you need to install them. We propose you two scripts (install_libraries.sh, install_xgboost.sh) in order to run the following commands:
+* In "install_libraries.sh":
+	* $ pip install scikit-surprise
+	* $ pip install surprise # This is in order the first one don't work (we experienced this on Windows)
+	* $ pip install future
 
-* $ pip install scikit-surprise
-* $ pip install surprise # This is in order the first one don't work (we experienced this on Windows)
-* $ pip install future
+* In "install_xgboost.sh":
+	* $ git clone --recursive https://github.com/dmlc/xgboost
+	* $ git submodule init
+	* $ git submodule update
 
-Or you can run the previous command by yourself if you prefer. 
-Or you can look the instructions given on these websites: for Surprise: http://surpriselib.com/ and for future: http://python-future.org/quickstart.html
+Or you can run the previous command by yourself if you prefer.
+
+For "xgboost" you will need to do different manipulations based on your OS, in order to build xgboost:
+* Ubuntu/Debian:
+	* $ cd xgboost; make -j4
+
+* MacOS:
+	* $ brew install gcc5
+	* $ pip install xgboost
+
+* Windows:
+	* You need to have "Git for Windows", you can install it here:  http://gitforwindows.org/
+	* $ alias make='mingw32-make'
+	* $ cp make/mingw64.mk config.mk; make -j4
+	
+
+Or you can look the instructions given on these websites: 
+* for Surprise: http://surpriselib.com/  
+* for future: http://python-future.org/quickstart.html
+* for xgboost: http://xgboost.readthedocs.io/en/latest/build.html
 
 Warnings
 ------------------
 
-* If you are on Windows you may need to install visual studio, you can do this here: http://landinghub.visualstudio.com/visual-cpp-build-tools (The 2015 version is enough, and you need to install the SDK which is proposed in the installation)
+* If you are on Windows:
+	* you may need to install visual studio, you can do this here: http://landinghub.visualstudio.com/visual-cpp-build-tools (The 2015 version is enough, and you need to install the SDK which is proposed in the installation)
+	* You may face some issues with the install of "xgboost", if it is the case we recommend you to do the following:
+		* Go on this website: https://www.lfd.uci.edu/~gohlke/pythonlibs/, and then find "xgboost" and download the version that corresponds to your system
+		* $ pip install <the file you just installed>
 
-* If you are on linux or macOS you first need to run: 
+* If you are on linux or macOS, before running the script, you first need to run: 
 	* $ chmod +x install_libraries.sh
+	* $ chmod +x install_xgboost.sh
 
-and then you can run the script with: ./install_libraries.sh
+and then you can run the script with: ./install_libraries.sh and ./install_xgboost.sh
 
