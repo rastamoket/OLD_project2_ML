@@ -14,19 +14,10 @@ def first_train(ratings,algorithm, test = [],submit = False):
     
     if not submit:
 
-        #/////////////// DELETE \\\\\\\\\\\\\\\\\\\\\\\\\\ todo --> Delete all the comments
-
         ########### Define: algo, dataset (trainset ##############
         dataF_train, ratings_train = formating_data_surprise(ratings, True) # Create the Dataset for surprise (training set)
 
         train_set = ratings_train.build_full_trainset() # Build trainset
-        #trainset_pred = train_set.build_testset() # Build iterable object in order to test
-
-        # TODO: can we throw this away??????????
-        #ratings_test = formating_data_surprise(validation_ratings)
-        #validation_set = ratings_test.build_full_trainset()
-
-        #prediction_df = dataF_train.copy()
         
         algos_trained = []
         

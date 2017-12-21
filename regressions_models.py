@@ -80,8 +80,6 @@ def optimization_regressor(data, regressor, hyperparameters, ratio = 0.85):
     #******** split the data in predictions and label ******
     data_predictions_np, data_label_np = get_label_predictions(data)
 
-
-
     #******** GridSearchCV ********************
     regressor_optimized = GridSearchCV(regressor, param_grid=hyperparameters, verbose = 1)
     regressor_optimized.fit(data_predictions_np, data_label_np)
