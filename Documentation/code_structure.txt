@@ -1,16 +1,17 @@
 Structure of the code
 ===========================
 
-We used Jupyter notebook as the main code for our project. In this notebook we call the different methods we've implemented in order to apply algorithms and do some optimization. Here we will give the overall structure of the code we've written in the Jupyter notebook.
+We used Jupyter notebook (named "Project2.ipynb") as the main code for our project. In this notebook we call the different methods we've implemented in order to apply algorithms and try different strategies to obtain the final model. We also do some optimizations of the algorithms (from Surprise) in the Jupyter notebook named "algorithm_optimization.ipynb". Here we will give the overall structure of the code we've written in the Jupyter notebook.
 
 * Preview of the given data and some statistics
 * Trying to apply different algorithms from the library "Surprise"
-	* Do some optimization on the parameters of the algorithms
-* Use the predictions of all the algorithms and try several techniques to obtain a good final prediction
+	* Do some optimization on the parameters of the algorithms, in the Jupyter notebook "algorithm_optimization.ipynb"
+* Use the predictions made by the algorithms trained on the training set and try several techniques to obtain a good final prediction
 	#. Majority vote
 	#. Mean of the predictions
 	#. Apply classifiers on the predictions (from sklearn)
-	#. Apply regressors on the predictions (from sklearn)
-		* Do some optimization on the parameters
-* Possibility to run the code for obtaining our best result (in run.py)
+	#. Apply regressors on the predictions (from sklearn and XGBoost)
+		* Do some optimization on the parameters of the best regressor (we would have done this on the best classifier if it was better than the regressor)
+* After all these strategies and optimization we finally choose our best model and wrap everything we need to obtain our best prediction in the method "run.py"
+	* This method can be run alone and it will create a .CSV file  that we can submit in Kaggle.
 

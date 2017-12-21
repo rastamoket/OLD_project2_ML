@@ -13,10 +13,12 @@ Pre-processing
 
 .. automodule:: pre_processing
    :members:
+
 .. automodule:: play_with_data
+   :members:
 
 
-Algorithms
+Strategies
 ----------------------------
 
 .. automodule:: classifiers_models
@@ -26,6 +28,9 @@ Algorithms
    :members:
 
 .. automodule:: regressions_models
+   :members:
+
+.. automodule:: majority_mean
    :members:
 
 .. automodule:: trainings_submissions

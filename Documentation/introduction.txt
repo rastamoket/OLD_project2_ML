@@ -2,3 +2,6 @@ Introduction
 ==================
 
 Project introduction
+---------------------
+
+In this project, we are trying to solve the problem proposed in the Netflix prize competition. It consists on the developing of the best possible filtering algorithm in order to predict the ratings that users would give to movies. The only dataset we receive consists of the ratings that users already gave, without any supplementary information concerning either the users or the movies.
